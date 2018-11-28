@@ -1,0 +1,3 @@
+vhdl isim_temp "DEFINE.vhd"
+vhdl isim_temp "EXE.vhd"
+vhdl isim_temp "CustomTests/testEXE.vhd"
