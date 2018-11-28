@@ -57,7 +57,7 @@ entity mem is
 		
 		mem_rdata_i:in std_logic_vector(15 downto 0);
 		
-		mem_ce_o:out std_logic);
+		mem_ce_o:out std_logic
 	);
 end mem;
 
