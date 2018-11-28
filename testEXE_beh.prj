@@ -1,3 +1,0 @@
-vhdl work "DEFINE.vhd"
-vhdl work "EXE.vhd"
-vhdl work "CustomTests/testEXE.vhd"

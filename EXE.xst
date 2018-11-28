@@ -1,5 +1,0 @@
-set -tmpdir "/media/yaozh16/00017DA30004166D/Academic/Grade3.1/CC/PRJ/MIPS16CPU/xst/projnav.tmp"
-set -xsthdpdir "/media/yaozh16/00017DA30004166D/Academic/Grade3.1/CC/PRJ/MIPS16CPU/xst"
-elaborate
--ifn EXE.prj
--ifmt mixed
