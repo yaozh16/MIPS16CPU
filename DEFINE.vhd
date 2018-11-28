@@ -88,5 +88,7 @@ package body DEFINE is
 
 	constant HIGH : std_logic:='1';
 	constant LOW  : std_logic:='0';
+	constant ENABLE : std_logic:='1';
+	constant DISABLE  : std_logic:='0';
  
 end DEFINE;
