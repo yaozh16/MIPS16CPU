@@ -55,6 +55,8 @@ entity mem is
 		mem_wdata_i:in  std_logic_vector(15 downto 0);
 		mem_wdata_o:out std_logic_vector(15 downto 0);
 		
+		mem_rdata_i:in std_logic_vector(15 downto 0);
+		
 		mem_ce_o:out std_logic);
 	);
 end mem;
@@ -62,7 +64,7 @@ end mem;
 architecture Behavioral of mem is
 	signal ce : STD_LOGIC;
 begin
-	process(rst, mem_wdata_i, mem_addr_i, wreg_i, wdata_i, mem_wr_i, mem_rd_i,reg_dest_i)
+	process(rst, mem_wdata_i, mem_addr_i, wreg_i, wdata_i, mem_wr_i, mem_rd_i, mem_rdata_i, reg_dest_i)
 	begin		
 		mem_ce_o <= ce;
 		if(rst = Enable) then
@@ -87,7 +89,7 @@ begin
 			elsif(mem_rd_i = Enable) then ---L指令
 				ce <= Enable;
 				wreg_o <= wreg_i;
-				wdata_o <= mem_wdata_i;
+				wdata_o <= mem_rdata_i;
 				mem_addr_o <= mem_addr_i;
 				reg_dest_o <= reg_dest_i;				
 			else ---其他指令
