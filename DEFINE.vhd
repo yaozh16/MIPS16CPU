@@ -11,11 +11,11 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
 package DEFINE is
-
 	constant ZeroWord : std_logic_vector(15 downto 0) := "0000000000000000";
 	constant Zero15   : std_logic_vector(14 downto 0) := "000000000000000";
 	constant OneWord  : std_logic_vector(15 downto 0) := "0000000000000001";
 	
+
 	constant RegAddrZero : std_logic_vector(3  downto 0) := "0000";
 	constant RegAddrR0 : std_logic_vector(3  downto 0) := "1000";
 	constant RegAddrR1 : std_logic_vector(3  downto 0) := "1000";
@@ -41,6 +41,8 @@ package DEFINE is
 	constant EXE_CMP_OP : std_logic_vector(7 downto 0) := "00001101"; --13
 	constant EXE_CMPI_OP : std_logic_vector(7 downto 0) := "00001110"; --14
 	constant EXE_JALR_OP : std_logic_vector(7 downto 0) := "00010000"; -- 16
+	constant EXE_JR_OP : std_logic_vector(7 downto 0) := "00010001"; -- 17
+	constant EXE_JRRA_OP : std_logic_vector(7 downto 0) := "00010010"; -- 18
 	constant EXE_LI_OP : std_logic_vector(7 downto 0) := "00010011"; --19
 	constant EXE_LW_OP : std_logic_vector(7 downto 0) := "00010100"; --20
 	constant EXE_LW_SP_OP : std_logic_vector(7 downto 0) := "00010101"; --21
@@ -86,6 +88,8 @@ package DEFINE is
 	constant OP_SRA: std_logic_vector(3 downto 0):="1011";
 	constant OP_XOR: std_logic_vector(3 downto 0):="1100";
 
+	constant ENABLE : std_logic:='1';
+	constant DISABLE  : std_logic:='0';
 end DEFINE;
 
 package body DEFINE is

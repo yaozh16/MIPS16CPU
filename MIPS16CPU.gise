@@ -21,6 +21,7 @@
 
   <sourceproject xmlns="http://www.xilinx.com/XMLSchema" xil_pn:fileType="FILE_XISE" xil_pn:name="MIPS16CPU.xise"/>
 
+<<<<<<< HEAD
   <files xmlns="http://www.xilinx.com/XMLSchema">
     <file xil_pn:fileType="FILE_LSO" xil_pn:name=".lso"/>
     <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="EXE.prj"/>
@@ -87,5 +88,10 @@
       <outfile xil_pn:name="testEXE_isim_beh.wdb"/>
     </transform>
   </transforms>
+=======
+  <files xmlns="http://www.xilinx.com/XMLSchema"/>
+
+  <transforms xmlns="http://www.xilinx.com/XMLSchema"/>
+>>>>>>> 59ff247a222da9da12cd34f5478652ab1ca51121
 
 </generated_project>
