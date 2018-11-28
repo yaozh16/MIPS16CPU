@@ -30,7 +30,7 @@ use DEFINE.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity mem is
+entity MEM is
 	Port(
 		rst:in std_logic;
 		
@@ -77,16 +77,16 @@ begin
 			reg_dest_o <= RegAddrZero;
 			mem_wr_o <= mem_wr_i;
 			mem_rd_o <= mem_rd_i;
-			if(mem_wr_i = Enable) then ---S指令
+			if(mem_wr_i = Enable) then ---S指
 				ce <= Enable;
 				mem_wdata_o <= mem_wdata_i;
 				mem_addr_o <= mem_addr_i;	
-			elsif(mem_rd_i = Enable) then ---L指令
+			elsif(mem_rd_i = Enable) then ---L指
 				ce <= Enable;
 				wdata_o <= mem_rdata_i;
 				mem_addr_o <= mem_addr_i;
 				reg_dest_o <= reg_dest_i;				
-			else ---其他指令
+			else ---指
 				ce <= Disable;
 				wdata_o <= wdata_i;
 				reg_dest_o <= reg_dest_i;
