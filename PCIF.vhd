@@ -40,7 +40,6 @@ entity PCIF is
 		
 		---communicate with memory unit
 		pc_o:out std_logic_vector(15 downto 0);	---connected to memory unit
-		ce_o:out std_logic;								---connected to memory unit
 		
 		---if
 		

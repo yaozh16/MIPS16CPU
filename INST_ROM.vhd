@@ -21,7 +21,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
-use DEFINES.ALL;
+use DEFINE.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -37,16 +37,16 @@ entity INST_ROM is
 		clk:in std_logic;
 		rst:in std_logic;
 		
-		ce_id:in std_logic;
-		addr_id:in std_logic_vector (15 downto 0);
-		inst_id:out std_logic_vector (15 downto 0);
+		id_addr_i:in std_logic_vector (15 downto 0);	---pc
+		id_inst_o:out std_logic_vector (15 downto 0);	---returned id
 		
-		mem_wr_i:in std_logic;
-		mem_rd_i:in std_logic;
-		mem_addr_i:in  std_logic_vector(15 downto 0);	
-		mem_wdata_i:in  std_logic_vector(15 downto 0);
-		mem_rdata_i:out std_logic_vector(15 downto 0);
+		mem_wr_i:in std_logic;		---mem ctrl signal
+		mem_rd_i:in std_logic;		---mem ctrl signal
+		mem_addr_i:in  std_logic_vector(15 downto 0);		---mem signal
+		mem_wdata_i:in  std_logic_vector(15 downto 0);		---mem signal
+		mem_rdata_o:out std_logic_vector(15 downto 0);
 		
+		---communicate with devices
 		Ram1Addr: out std_logic_vector(17 downto 0);
 		Ram1Data: inout std_logic_vector(15 downto 0);
 		Ram1OE: out std_logic;
@@ -71,114 +71,122 @@ architecture Behavioral of INST_ROM is
 	signal FlashDataOut: std_logic_vector(15 downto 0);
 	signal isUser: std_logic;
 begin
-	Ram1_cltr:process(rst, clk) ---Ram1数据选择
+	process(mem_addr_i, isUser) ---欠user围
 	begin
-		if(rst = Disable) then
-			Ram1EN <= Disable;
-			Ram1OE <= Enable;
-			Ram1Addr <= (others => Disable);
-			Ram1Data <= (others => 'Z');
+		if((mem_addr_i > x"4000") and (mem_addr_i < x"8000")) then
+			isUser <= Enable;
 		else
-			if((mem_wr_i = Disable) and (mem_rd_i = Disable)) then
-				Ram1Addr <= "00" & addr_id;
-			end if;
-			if((mem_wr_i = Disable) and (mem_rd_i = Disable)) then ---都不能
-				Ram1Data <= (others => 'Z');
-				if(clk'event and clk = '0') then
-					Ram1EN <= Disable;
-					Ram1OE <= Disable;
+			isUser <= Disable;
+		end if;
+	end process;
+	
+	Ram1Addr <="00"& mem_addr_i;
+	
+	
+	Ram1_cltr:process(rst, clk,mem_wdata_i,mem_wr_i) ---Ram1选
+	begin
+		if(rst = LOW) then
+			Ram1EN <= HIGH;
+			Ram1OE <= HIGH;
+			Ram1Data <= (others => 'Z');
+		else	--- work
+			if(mem_wr_i = Enable) then ---mem write
+				Ram1OE <= HIGH;
+				Ram1EN <= LOW;
+				if(clk'event and clk=LOW)then
+					Ram1Data <= mem_wdata_i;
 				end if;
-			elsif(mem_wr_i = Enable) then ---mem可写
-				Ram1OE <= Enable;
-				Ram1EN <= Disable;
-				Ram1Data <= mem_wdata_i;
-			elsif(mem_rd_i = Enable) then ---mem可读
-				Ram1Data <= (others => 'Z');
-				if(clk'event and clk = '0') then
-					Ram1EN <= Disable;
-					Ram1OE <= Disable;
+			elsif(mem_rd_i = Enable) then ---mem read
+				if(clk'event and clk=LOW)then
+					Ram1Data <= (others => 'Z');
 				end if;
-			else ---rd wr同时enable 到不了这
-				
+				Ram1EN <= LOW;				
+				Ram1OE <= clk;			
+			else ---
+				Ram1EN <= HIGH;
+				Ram1OE <= HIGH;
 			end if;
 		end if;
 	end process;
 	
-	Ram1WE_control: process(rst, clk, mem_wr_i, mem_rd_i) ---Ram1写使能控制
+	Ram1WE_control: process(rst, clk, mem_wr_i, isUser) ---Ram1
 	begin
-		if ((rst = Enable) or (mem_rd_i= Disable)) then
-			Ram1WE <= '1';
-		elsif (mem_wr_i = Enable) then
+		if ((rst=HIGH) and (mem_wr_i=HIGH) and (isUser=LOW)) then
 			Ram1WE <= clk;
 		else 
-			Ram1WE <= '1';
+			Ram1WE <= HIGH;
 		end if;
 	end process;
 	
-	Ram2WE_control: process(rst, clk, LoadComplete) ---Ram2写使能控制
+	Ram2WE_control: process(rst, clk, LoadComplete,mem_wr_i,isUser) ---Ram2
 	begin
-		if (rst = Enable) then
+		if(rst=LOW) then
 			Ram2WE <= '1';
-		elsif (LoadComplete = '1') then
-			Ram2WE <= '0';
-		else 
+		elsif(LoadComplete=LOW)then
+			Ram2WE<=clk;
+		elsif(mem_wr_i=HIGH and isUser=HIGH) then
+			Ram2WE<=clk;
+		else
 			Ram2WE <= '1';
 		end if;
 	end process;
 	
-	Ram2_Data: process(rst, LoadComplete, FlashDataOut) ---Ram2数据选择
+	Ram2EN<=LOW;
+	
+	Ram2_ctrl: process(rst, LoadComplete, FlashDataOut,isUser,clk) ---Ram2选
 	begin
-		if (rst = Disable) then
+		if (rst = LOW) then
 			Ram2OE <= '1';
 			Ram2Data <= (others => 'Z');
-		else
-			if (LoadComplete = '1') then
-				Ram2OE <= '0';
-				Ram2Data <= (others => 'Z');
+		else ---work
+			if (LoadComplete = HIGH) then
+				if(isUser=HIGH and mem_wr_i=HIGH)then
+					Ram2Data<=mem_wdata_i;
+				else
+					if(clk'event and clk=LOW)then
+						Ram2Data <= (others => 'Z');
+					end if;
+				end if;
 			else
+				---work to do
 				Ram2Data <= FlashDataOut;
 				Ram2OE <= '1';
 			end if;
 		end if;
 	end process;
 	
-	Ram2_addr: process(mem_addr_i, mem_rd_i, mem_wr_i, addr_id, isUser) ---Ram2地址选择
+	Ram2_addr:process(isUser,mem_wr_i,mem_rd_i,id_addr_i,mem_addr_i)
 	begin
-		if(isUser = Enable and ((mem_rd_i = Enable) or (mem_wr_i = Enable))) then
-			Ram2Addr <= "00" & mem_addr_i;
+		if((isUser and (mem_wr_i or mem_rd_i))=HIGH)then
+			Ram2Addr<="00"&mem_addr_i;
 		else
-			Ram2Addr <= "00" & addr_id;
+			Ram2Addr<="00"&id_addr_i;
 		end if;
 	end process;
 			
-	IsUser:process(mem_addr, isUser) ---是否在user范围内
-	begin
-		if((mem_addr > x"4000") and (mem_addr < x"8000")) then
-			isUser <= Enable;
-		else
-			isUser <= Disable;
-		end if;
-	end process;
+	
 						
-	Inst: process(rst,ce_id,rom_ready,Ram2Data,LoadComplete, isUser) ---id out部分
+	Inst: process(rst,Ram2Data,LoadComplete, isUser,mem_rd_i,mem_wr_i) ---id out
 	begin
-		if(rst = Disable) then
-			if(isUser = Enable and ((mem_rd_i = Enable) or (mem_wr_i = Enable))) then
-				inst_id <= NopInst;
-			else
-				inst_id <= Ram2Data;
-			end if;
+		if(rst=HIGH and LoadComplete=HIGH and (((mem_rd_i or mem_wr_i) and isUser)=HIGH))then
+			id_inst_o<=Ram2Data;
+		else
+			id_inst_o<=NopInst;
 		end if;
 	end process;
 	
-	Mem_read : process(rst,addr_id,addr_mem,re_mem,wdata_mem,Ram1Data) ---mem out部分
+	Mem_read : process(rst,id_addr_i,mem_rd_i,Ram2Data,Ram1Data) ---mem out
 	begin
-		if(rst = Disable) then
-			if(isUser = Enable and ((mem_rd_i = Enable) or (mem_wr_i = Enable))) then
-				mem_rdata_i <= Ram2Data;
+		if((rst and mem_rd_i)=HIGH)then
+			if(isUser=LOW) then
+				mem_rdata_o<=Ram1Data;
+			elsif(LoadComplete=HIGH)then
+				mem_rdata_o<=Ram2Data;
 			else
-				mem_rdata_i <= Ram1Data;
+				mem_rdata_o<=ZeroWord;
 			end if;
+		else
+			mem_rdata_o<=ZeroWord;
 		end if;
 	end process;
 end Behavioral;
