@@ -21,7 +21,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
-use DEFINE.ALL;
+use WORK.DEFINE.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -70,8 +70,30 @@ architecture Behavioral of INST_ROM is
 	signal LoadComplete: std_logic;
 	signal FlashDataOut: std_logic_vector(15 downto 0);
 	signal isUser: std_logic;
+	signal clk_2,clk_4,clk_8: STD_LOGIC;
 begin
-	process(mem_addr_i, isUser) ---欠user围
+	process(clk)	--二分频
+	begin
+		if clk'event and clk='1' then
+			clk_2 <= not clk_2;
+		end if;
+	end process;
+	
+	process(clk_2)	--四分频
+	begin
+		if clk_2'event and clk_2='1' then
+			clk_4 <= not clk_4;
+		end if;
+	end process;
+	
+	process(clk_4)	--八分频
+	begin
+		if clk_4'event and clk_4='1' then
+			clk_8 <= not clk_8;
+		end if;
+	end process;
+
+	process(mem_addr_i, isUser) ---
 	begin
 		if((mem_addr_i > x"4000") and (mem_addr_i < x"8000")) then
 			isUser <= Enable;
@@ -82,6 +104,7 @@ begin
 	
 	Ram1Addr <="00"& mem_addr_i;
 	
+	LoadComplete <= '1'; ---for test
 	
 	Ram1_cltr:process(rst, clk,mem_wdata_i,mem_wr_i) ---Ram1选
 	begin
@@ -133,7 +156,7 @@ begin
 	
 	Ram2EN<=LOW;
 	
-	Ram2_ctrl: process(rst, LoadComplete, FlashDataOut,isUser,clk) ---Ram2选
+	Ram2_ctrl: process(rst, LoadComplete, FlashDataOut,isUser,clk) ---Ram2
 	begin
 		if (rst = LOW) then
 			Ram2OE <= '1';
