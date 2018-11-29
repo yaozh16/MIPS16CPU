@@ -13,22 +13,25 @@ use IEEE.STD_LOGIC_1164.all;
 package DEFINE is
 	constant ZeroWord : std_logic_vector(15 downto 0) := "0000000000000000";
 	constant Zero15   : std_logic_vector(14 downto 0) := "000000000000000";
+	constant Zero8   : std_logic_vector(7 downto 0) := "00000000";
+	constant Zero4   : std_logic_vector(3 downto 0) := "0000";
 	constant OneWord  : std_logic_vector(15 downto 0) := "0000000000000001";
 	
 
-	constant RegAddrZero : std_logic_vector(3  downto 0) := "0000";
-	constant RegAddrR0 : std_logic_vector(3  downto 0) := "1000";
-	constant RegAddrR1 : std_logic_vector(3  downto 0) := "1000";
-	constant RegAddrR2 : std_logic_vector(3  downto 0) := "1000";
-	constant RegAddrR3 : std_logic_vector(3  downto 0) := "1000";
-	constant RegAddrR4 : std_logic_vector(3  downto 0) := "1000";
-	constant RegAddrR5 : std_logic_vector(3  downto 0) := "1000";
-	constant RegAddrR6 : std_logic_vector(3  downto 0) := "1000";
-	constant RegAddrR7 : std_logic_vector(3  downto 0) := "1000";
-	constant RegAddrRA : std_logic_vector(3  downto 0) := "0001";
-	constant RegAddrSP : std_logic_vector(3  downto 0) := "0010";
-	constant RegAddrT  : std_logic_vector(3  downto 0) := "0011";
-	constant RegAddrIH : std_logic_vector(3  downto 0) := "0100";
+	constant RegAddrR0 : std_logic_vector(3  downto 0) := "0000";---0
+	constant RegAddrR1 : std_logic_vector(3  downto 0) := "0001";
+	constant RegAddrR2 : std_logic_vector(3  downto 0) := "0010";
+	constant RegAddrR3 : std_logic_vector(3  downto 0) := "0011";
+	constant RegAddrR4 : std_logic_vector(3  downto 0) := "0100";
+	constant RegAddrR5 : std_logic_vector(3  downto 0) := "0101";
+	constant RegAddrR6 : std_logic_vector(3  downto 0) := "0110";
+	constant RegAddrR7 : std_logic_vector(3  downto 0) := "0111";---7
+	constant RegAddrRA : std_logic_vector(3  downto 0) := "1000";---8
+	constant RegAddrSP : std_logic_vector(3  downto 0) := "1001";---9
+	constant RegAddrT  : std_logic_vector(3  downto 0) := "1010";---10
+	constant RegAddrIH : std_logic_vector(3  downto 0) := "1011";---11
+	constant RegAddrNOP : std_logic_vector(3  downto 0):="1100";---12
+	constant RegAddrPC : std_logic_vector(3  downto 0):="1101";---12
 	
 	constant NopInst : std_logic_vector(15 downto 0) := "0000100000000000";
 	
@@ -90,6 +93,25 @@ package DEFINE is
 
 	constant ENABLE : std_logic:='1';
 	constant DISABLE  : std_logic:='0';
+	
+	constant EXTEND_NOP :std_logic_vector(3 downto 0):="0000";
+	constant EXTEND_7S0 :std_logic_vector(3 downto 0):="0001";
+	constant EXTEND_3S0 :std_logic_vector(3 downto 0):="0010";
+	constant EXTEND_PC10S0:std_logic_vector(3 downto 0):="0011";
+	constant EXTEND_PC7S0:std_logic_vector(3 downto 0):="0100";
+	constant EXTEND_7Z0 :std_logic_vector(3 downto 0):="0101";
+	constant EXTEND_4S0 :std_logic_vector(3 downto 0):="0110";
+	constant EXTEND_PC :std_logic_vector(3 downto 0):="0111";
+	constant EXTEND_4Z2_Z8:std_logic_vector(3 downto 0):="1000";
+	
+	constant BRJ_NOP	:std_logic_vector(2 downto 0):="000";
+	constant BRJ_BEQZ	:std_logic_vector(2 downto 0):="001";	--if reg1==0 PC<=extend
+	constant BRJ_BNEZ	:std_logic_vector(2 downto 0):="010";	--if reg1!=0 PC<=extend
+	constant BRJ_JR	:std_logic_vector(2 downto 0):="011";	--PC<=reg1
+	constant BRJ_B		:std_logic_vector(2 downto 0):="100";	--PC<=extend
+	
+	constant MEM_MUX_ALU_RESULT:std_logic:='0';
+	constant MEM_MUX_MEM_OUT:std_logic:='1';
 end DEFINE;
 
 package body DEFINE is
