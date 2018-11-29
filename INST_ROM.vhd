@@ -57,7 +57,17 @@ entity INST_ROM is
 		Ram2Data: inout std_logic_vector(15 downto 0);
 		Ram2OE: out std_logic;
 		Ram2WE: out std_logic;
-		Ram2EN: out std_logic
+		Ram2EN: out std_logic;
+		
+		---flash component
+		FlashByte: out STD_LOGIC;
+		FlashVpen: out STD_LOGIC;
+		FlashCE: out STD_LOGIC;
+		FlashOE: out STD_LOGIC;
+		FlashWE: out STD_LOGIC;
+		FlashRP: out STD_LOGIC;
+		FlashAddr: out STD_LOGIC_VECTOR(21 downto 0);
+		FlashData: inout STD_LOGIC_VECTOR(15 downto 0)
 		
 		);
 		
@@ -70,7 +80,31 @@ architecture Behavioral of INST_ROM is
 	signal LoadComplete: std_logic;
 	signal FlashDataOut: std_logic_vector(15 downto 0);
 	signal isUser: std_logic;
-	signal clk_2,clk_4,clk_8: STD_LOGIC;
+	signal clk_2,clk_4,clk_8: std_logic;
+	
+	signal FlashRead: std_logic;
+	signal FlashRst: std_logic;
+	signal FlashDataOut: std_logic_vector(15 downto 0);
+	signal FlashAddrIn : std_logic_vector(21 downto 0);
+	
+	component FLASH
+    Port ( addr : in  STD_LOGIC_VECTOR (21 downto 0);
+           data_out : out  STD_LOGIC_VECTOR (15 downto 0);
+			  clk : in std_logic;
+			  reset : in std_logic;
+			  
+			  flash_byte : out std_logic;
+			  flash_vpen : out std_logic;
+			  flash_ce : out std_logic;
+			  flash_oe : out std_logic;
+			  flash_we : out std_logic;
+			  flash_rp : out std_logic;
+			  flash_addr : out std_logic_vector(21 downto 0);
+			  flash_data : inout std_logic_vector(15 downto 0);
+			  
+           ctl_read : in  STD_LOGIC
+	);
+	end component;
 begin
 	process(clk)	--¶þ·ÖÆµ
 	begin
@@ -92,6 +126,8 @@ begin
 			clk_8 <= not clk_8;
 		end if;
 	end process;
+	
+	
 
 	process(mem_addr_i, isUser) ---
 	begin
