@@ -63,7 +63,7 @@ begin
 	flash_ce <= '0';
 	flash_rp <= '1';
 	
-	process(rst, clk)
+	process(rst, clk, ctl_read)
 	begin
 		if(rst = LOW) then
 			flash_we <= '1';
