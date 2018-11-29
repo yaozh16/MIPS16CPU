@@ -66,8 +66,8 @@ entity INST_ROM is
 		FlashOE: out STD_LOGIC;
 		FlashWE: out STD_LOGIC;
 		FlashRP: out STD_LOGIC;
-		FlashAddr: out STD_LOGIC_VECTOR(21 downto 0);
-		FlashData: inout STD_LOGIC_VECTOR(15 downto 0)
+		FlashAddr: out std_logic_vector(21 downto 0);
+		FlashData: inout std_logic_vector(15 downto 0)
 		
 		);
 		
@@ -80,7 +80,7 @@ architecture Behavioral of INST_ROM is
 	signal LoadComplete: std_logic;
 	signal FlashDataOut: std_logic_vector(15 downto 0);
 	signal isUser: std_logic;
-	signal clk_2,clk_4,clk_8: std_logic;
+	signal clk_2: std_logic;
 	
 	signal FlashRead: std_logic;
 	signal FlashRst: std_logic;
@@ -88,10 +88,11 @@ architecture Behavioral of INST_ROM is
 	signal FlashAddrIn : std_logic_vector(21 downto 0);
 	
 	component FLASH
-    Port ( addr : in  STD_LOGIC_VECTOR (21 downto 0);
-           data_out : out  STD_LOGIC_VECTOR (15 downto 0);
+    Port ( addr : in  std_logic_vector (21 downto 0);
+           data_out : out  std_logic_vector (15 downto 0);
+			  addr_out : out std_logic_vector (21 downto 0);
 			  clk : in std_logic;
-			  reset : in std_logic;
+			  rst : in std_logic;
 			  
 			  flash_byte : out std_logic;
 			  flash_vpen : out std_logic;
@@ -102,7 +103,7 @@ architecture Behavioral of INST_ROM is
 			  flash_addr : out std_logic_vector(21 downto 0);
 			  flash_data : inout std_logic_vector(15 downto 0);
 			  
-           ctl_read : in  STD_LOGIC
+           ctl_read : in  std_logic
 	);
 	end component;
 begin
@@ -113,21 +114,9 @@ begin
 		end if;
 	end process;
 	
-	process(clk_2)	--四分频
-	begin
-		if clk_2'event and clk_2='1' then
-			clk_4 <= not clk_4;
-		end if;
-	end process;
-	
-	process(clk_4)	--八分频
-	begin
-		if clk_4'event and clk_4='1' then
-			clk_8 <= not clk_8;
-		end if;
-	end process;
-	
-	
+	flash_io_component: FLASH port map(addr=>FlashAddrIn, data_out=>FlashDataOut, clk=>clk, rst=>FlashRst,
+												  flash_byte=>FlashByte, flash_vpen=>FlashVpen, flash_ce=>FlashCE, flash_oe=>FlashOE, flash_we=>FlashWE,
+												  flash_rp=>FlashRP, flash_addr=>FlashAddr, flash_data=>FlashData, ctl_read=>FlashRead);
 
 	process(mem_addr_i, isUser) ---
 	begin
@@ -140,7 +129,7 @@ begin
 	
 	Ram1Addr <="00"& mem_addr_i;
 	
-	LoadComplete <= '1'; ---for test
+	---  LoadComplete <= '1'; for test
 	
 	Ram1_cltr:process(rst, clk,mem_wdata_i,mem_wr_i) ---Ram1选
 	begin
@@ -177,12 +166,14 @@ begin
 		end if;
 	end process;
 	
-	Ram2WE_control: process(rst, clk, LoadComplete,mem_wr_i,isUser) ---Ram2
+	Ram2WE_control: process(rst, clk, clk_2, LoadComplete,mem_wr_i,isUser) ---Ram2
 	begin
 		if(rst=LOW) then
 			Ram2WE <= '1';
 		elsif(LoadComplete=LOW)then
-			Ram2WE<=clk;
+			if(clk = '1' and clk_2'event and clk_2 = '0') then
+				Ram2WE<=clk_2;
+			end if;
 		elsif(mem_wr_i=HIGH and isUser=HIGH) then
 			Ram2WE<=clk;
 		else
@@ -207,7 +198,6 @@ begin
 					end if;
 				end if;
 			else
-				---work to do
 				Ram2Data <= FlashDataOut;
 				Ram2OE <= '1';
 			end if;

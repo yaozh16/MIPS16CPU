@@ -35,8 +35,9 @@ entity FLASH is
 			  clk : in std_logic;
 			  rst : in std_logic;
 			  
-			  addr:in STD_LOGIC_VECTOR(21 downto 0);
-           data_out:out STD_LOGIC_VECTOR(15 downto 0);
+			  addr:in std_logic_vector(21 downto 0);
+           data_out:out std_logic_vector(15 downto 0);
+			  addr_out:out std_logic_vector(21 downto 0);
 			  
 			  flash_byte : out std_logic;
 			  flash_vpen : out std_logic;
