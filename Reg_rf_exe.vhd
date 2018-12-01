@@ -39,10 +39,10 @@ entity Reg_rf_exe is
 		exe_aluop_i:in std_logic_vector(3 downto 0);---ALU operation
 		exe_mux1_i:in std_logic;	--reg or 0
 		exe_mux2_i:in std_logic;  --reg or extended                                                                                                                 
-		reg_src_data1_i:in std_logic_vector(15 downto 0);
-		reg_src_data2_i:in std_logic_vector(15 downto 0);
-		reg_src_addr1_i:in std_logic_vector(3 downto 0);
-		reg_src_addr2_i:in std_logic_vector(3 downto 0);
+		reg_src1_data_i:in std_logic_vector(15 downto 0);
+		reg_src2_data_i:in std_logic_vector(15 downto 0);
+		reg_src1_addr_i:in std_logic_vector(3 downto 0);
+		reg_src2_addr_i:in std_logic_vector(3 downto 0);
 		
 		extended_i:in std_logic_vector(15 downto 0);
 		reg_dest_i:in std_logic_vector(3 downto 0);
@@ -55,10 +55,10 @@ entity Reg_rf_exe is
 		exe_aluop_o:out std_logic_vector(3 downto 0);---ALU operation
 		exe_mux1_o:out std_logic;	--reg or 0
 		exe_mux2_o:out std_logic;  --reg or extended                                                                                                                 
-		reg_src_data1_o:out std_logic_vector(15 downto 0);
-		reg_src_data2_o:out std_logic_vector(15 downto 0);
-		reg_src_addr1_o:out std_logic_vector(3 downto 0);
-		reg_src_addr2_o:out std_logic_vector(3 downto 0);
+		reg_src1_data_o:out std_logic_vector(15 downto 0);
+		reg_src2_data_o:out std_logic_vector(15 downto 0);
+		reg_src1_addr_o:out std_logic_vector(3 downto 0);
+		reg_src2_addr_o:out std_logic_vector(3 downto 0);
 		
 		extended_o:out std_logic_vector(15 downto 0);
 		reg_dest_o:out std_logic_vector(3 downto 0);
@@ -70,17 +70,17 @@ end Reg_rf_exe;
 
 architecture Behavioral of Reg_rf_exe is
 begin
-	process(clk,rst)
+	process(clk,rst,flush)
 	begin
 		if((rst=LOW)or(flush=HIGH))then
 			branch_type_o<=BRJ_NOP;
 			exe_aluop_o<=OP_NOP;
 			exe_mux1_o<=LOW;
 			exe_mux2_o<=LOW;
-			reg_src_data1_o<=ZeroWord;
-			reg_src_data2_o<=ZeroWord;
-			reg_src_addr1_o<=RegAddrNOP;
-			reg_src_addr2_o<=RegAddrNOP;
+			reg_src1_data_o<=ZeroWord;
+			reg_src2_data_o<=ZeroWord;
+			reg_src1_addr_o<=RegAddrNOP;
+			reg_src2_addr_o<=RegAddrNOP;
 			extended_o<=ZeroWord;
 			reg_dest_o<=RegAddrNOP;
 			mem_rd_o<=LOW;
@@ -91,10 +91,10 @@ begin
 			exe_aluop_o<=exe_aluop_i;
 			exe_mux1_o<=exe_mux1_i;
 			exe_mux2_o<=exe_mux2_i;
-			reg_src_data1_o<=reg_src_data1_i;
-			reg_src_data2_o<=reg_src_data2_i;
-			reg_src_addr1_o<=reg_src_addr1_i;
-			reg_src_addr2_o<=reg_src_addr2_i;
+			reg_src1_data_o<=reg_src1_data_i;
+			reg_src2_data_o<=reg_src2_data_i;
+			reg_src1_addr_o<=reg_src1_addr_i;
+			reg_src2_addr_o<=reg_src2_addr_i;
 			extended_o<=extended_i;
 			reg_dest_o<=reg_dest_i;
 			mem_rd_o<=mem_rd_i;

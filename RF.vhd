@@ -44,10 +44,10 @@ entity RF is
 		exe_aluop_o:out std_logic_vector(3 downto 0);---ALU operation
 		exe_mux1_o:out std_logic;	--reg or 0
 		exe_mux2_o:out std_logic;  --reg or extended                                                                                                                 
-		reg_src_data1_o:out std_logic_vector(15 downto 0);
-		reg_src_data2_o:out std_logic_vector(15 downto 0);
-		reg_src_addr1_o:out std_logic_vector(3 downto 0);
-		reg_src_addr2_o:out std_logic_vector(3 downto 0);
+		reg_src1_data_o:out std_logic_vector(15 downto 0);
+		reg_src2_data_o:out std_logic_vector(15 downto 0);
+		reg_src1_addr_o:out std_logic_vector(3 downto 0);
+		reg_src2_addr_o:out std_logic_vector(3 downto 0);
 		
 		extended_o:out std_logic_vector(15 downto 0);
 		reg_dest_o:out std_logic_vector(3 downto 0);
@@ -68,10 +68,10 @@ architecture Behavioral of RF is
 	signal reg_src_addr2: std_logic_vector(3 downto 0):=RegAddrNOP;
 begin
 	extended_o<=extended;
-	reg_src_data1_o<=reg_src_data1;
-	reg_src_data2_o<=reg_src_data2;
-	reg_src_addr1_o<=reg_src_addr1;
-	reg_src_addr2_o<=reg_src_addr2;
+	reg_src1_data_o<=reg_src_data1;
+	reg_src2_data_o<=reg_src_data2;
+	reg_src1_addr_o<=reg_src_addr1;
+	reg_src2_addr_o<=reg_src_addr2;
 	reg_src_data1<=Regs(CONV_INTEGER(reg_src_addr1));
 	reg_src_data2<=Regs(CONV_INTEGER(reg_src_addr2));
 	--- write back

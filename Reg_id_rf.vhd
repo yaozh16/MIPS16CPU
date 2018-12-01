@@ -46,7 +46,7 @@ end Reg_id_rf;
 architecture Behavioral of Reg_id_rf is
 
 begin
-	process(clk,rst)
+	process(clk,rst,flush)
 	begin
 		if((rst=LOW)or (flush=HIGH))then
 			pc_o<=ZeroWord;

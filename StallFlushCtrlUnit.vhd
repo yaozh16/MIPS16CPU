@@ -40,8 +40,8 @@ entity StallFlushCtrlUnit is
 		--s  s	 s			  f	  
 		mem_rd_i_EXE_MEM:in std_logic;									-- from exe_mem_regs
 		reg_exemem_dest_addr_i:in std_logic_vector(3 downto 0);	-- from exe_mem_regs
-		reg_src_addr1_i:in std_logic_vector(3 downto 0);		---from rf_exe regs
-		reg_src_addr2_i:in std_logic_vector(3 downto 0);		-- from rf_exe regs
+		reg_src1_addr_i:in std_logic_vector(3 downto 0);		---from rf_exe regs
+		reg_src2_addr_i:in std_logic_vector(3 downto 0);		-- from rf_exe regs
 		
 		
 		----PC IFID  |	RF	|	EXE	|	MEM	|	WB
@@ -57,15 +57,15 @@ begin
 	process(	branch_flag_i,
 				mem_rd_i_EXE_MEM,
 				reg_exemem_dest_addr_i,
-				reg_src_addr1_i,
-				reg_src_addr2_i)
+				reg_src1_addr_i,
+				reg_src2_addr_i)
 	begin
 		if(branch_flag_i='1')then
 			RegStalls_o<="00000";
 			RegFlushs_o<= "1100";
 		elsif((mem_rd_i_EXE_MEM='1')and 
-					(	(reg_exemem_dest_addr_i=reg_src_addr1_i) 
-					or (reg_exemem_dest_addr_i=reg_src_addr2_i)
+					(	(reg_exemem_dest_addr_i=reg_src1_addr_i) 
+					or (reg_exemem_dest_addr_i=reg_src2_addr_i)
 					)
 				)then			
 			--- LW conflict

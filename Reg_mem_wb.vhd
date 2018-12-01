@@ -47,7 +47,7 @@ end Reg_mem_wb;
 
 architecture Behavioral of Reg_mem_wb is
 begin
-	process(clk,rst)
+	process(clk,rst,flush)
 	begin
 		if(((not rst ) or  flush)=HIGH )then
 			reg_dest_o<=RegAddrNOP;

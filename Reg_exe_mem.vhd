@@ -55,7 +55,7 @@ end Reg_exe_mem;
 architecture Behavioral of Reg_exe_mem is
 	
 begin
-	process(clk,rst)
+	process(clk,rst,flush)
 	begin
 		if((rst=LOW) or (flush=HIGH))then
 			ALU_result_o<=ZeroWord;
