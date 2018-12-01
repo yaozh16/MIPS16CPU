@@ -19,7 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use DEFINE.ALL;
+use work.DEFINE.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -43,7 +43,6 @@ entity MEM is
 		
 		mem_wr_o:out std_logic;									---connect to memory unit
 		mem_rd_o:out std_logic;									---connect to memory unit
-		mem_ce_o:out std_logic;
 		mem_addr_o:out  std_logic_vector(15 downto 0);		---connect to memory unit
 		mem_wdata_o:out std_logic_vector(15 downto 0);		---connect to memory unit
 		mem_rdata_i:in std_logic_vector(15 downto 0);		---connect to memory unit
@@ -53,7 +52,7 @@ entity MEM is
 	);
 end mem;
 
-architecture Behavioral of mem is
+architecture Behavioral of MEM is
 begin
 	process(writeback_mux_i,mem_rdata_i,ALU_result_i)
 	begin
@@ -65,19 +64,17 @@ begin
 	end process;
 	
 	
-	process(rst, mem_wdata_i, mem_addr_i, wdata_i, mem_wr_i, mem_rd_i, mem_rdata_i, reg_dest_i)
+	process(rst, mem_wdata_i, ALU_result_i, mem_wdata_i, mem_wr_i, mem_rd_i, mem_rdata_i, reg_dest_i)
 	begin
 		if(rst = LOW) then
 			mem_wr_o <= LOW;
 			mem_rd_o <= LOW;
-			mem_ce_o <= LOW;
 			reg_dest_o <= RegAddrNOP;
 			mem_addr_o <= ZeroWord;
 			mem_wdata_o <= ZeroWord;
 		else			
 			mem_wr_o <= mem_wr_i;
 			mem_rd_o <= mem_rd_i;
-			ce_o<=mem_wr_i and mem_rd_i;
 			reg_dest_o <= reg_dest_i;
 			mem_addr_o <= ALU_result_i;
 			mem_wdata_o <= mem_wdata_i;

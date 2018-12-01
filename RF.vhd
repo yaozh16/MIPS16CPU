@@ -20,7 +20,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
-use DEFINE.ALL;
+use work.DEFINE.ALL;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -33,7 +33,7 @@ use DEFINE.ALL;
 entity RF is
 	port(
 		clk:in std_logic;
-		instr_current_addr_i:in std_logic_vector(15 downto 0);
+		pc_i:in std_logic_vector(15 downto 0);
 		instr_i: in std_logic_vector(15 downto 0);
 		stall_i:in std_logic;	---last branch success
 		
@@ -85,17 +85,17 @@ begin
 	end process;
 	
 	---extend ctrl
-	process (extend_ctrl,instr_i,instr_current_addr_i)
+	process (extend_ctrl,instr_i,pc_i)
 	begin
 		case extend_ctrl is
 			when EXTEND_NOP	=>extended<=ZeroWord;
 			when EXTEND_7S0	=>extended<=to_stdlogicvector(to_bitvector(instr_i(7 downto 0)&Zero8) sra 8);
 			when EXTEND_3S0	=>extended<=to_stdlogicvector(to_bitvector(instr_i(3 downto 0)&Zero8&Zero4) sra 12);
-			when EXTEND_PC10S0=>extended<=instr_current_addr_i+OneWord+to_stdlogicvector(to_bitvector(instr_i(10 downto 0)&Zero4&"0") sra 5);
-			when EXTEND_PC7S0	=>extended<=instr_current_addr_i+OneWord+to_stdlogicvector(to_bitvector(instr_i(7 downto 0)&Zero8) sra 8);
+			when EXTEND_PC10S0=>extended<=pc_i+OneWord+to_stdlogicvector(to_bitvector(instr_i(10 downto 0)&Zero4&"0") sra 5);
+			when EXTEND_PC7S0	=>extended<=pc_i+OneWord+to_stdlogicvector(to_bitvector(instr_i(7 downto 0)&Zero8) sra 8);
 			when EXTEND_7Z0	=>extended<=Zero8&instr_i(7 downto 0);
 			when EXTEND_4S0	=>extended<=to_stdlogicvector(to_bitvector(instr_i(4 downto 0)&Zero8&"000") sra 11);
-			when EXTEND_PC		=>extended<=instr_current_addr_i+OneWord;
+			when EXTEND_PC		=>extended<=pc_i+OneWord;
 			when EXTEND_4Z2_Z8=>if(instr_i(4 downto 2)="000")then
 											extended<=Zero8&Zero4&"1000";
 										else

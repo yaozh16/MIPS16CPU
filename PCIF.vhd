@@ -19,7 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use DEFINE.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use work.DEFINE.ALL;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -33,8 +34,7 @@ entity PCIF is
 	port(
 		clk: in std_logic;
 		rst: in std_logic;
-		install_i: in std_logic;	---should be stable before clk down edge
-											---connected to memory unit
+		LW_stall_i:in std_logic;
 		branch_addr_i:in std_logic_vector(15 downto 0);
 		branch_flag_i:in std_logic;
 		
@@ -44,6 +44,7 @@ entity PCIF is
 		---if
 		
 		instruction_i:in std_logic_vector(15 downto 0);	---connected to memory unit
+		id_succ_i:in std_logic;
 		instruction_o:out std_logic_vector(15 downto 0) ---connected to registers between parts
 	);
 end PCIF;
@@ -67,10 +68,10 @@ begin
 		end if;
 	end process;
 	
-	process(clk,install_i)
+	process(clk,LW_stall_i,id_succ_i)
 	begin
 		if(clk'event and clk=LOW)then
-			install<=install_i;
+			install<=LW_stall_i and not id_succ_i;
 		end if;
 	end process;
 end Behavioral;

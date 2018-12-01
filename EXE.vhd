@@ -39,15 +39,15 @@ entity EXE is
 		exe_mux1_i:in std_logic;
 		exe_mux2_i:in std_logic;
 		
-		reg_src1_i:in std_logic_vector(15 downto 0);
-		reg_src2_i:in std_logic_vector(15 downto 0);
+		reg_src1_data_i:in std_logic_vector(15 downto 0);
+		reg_src2_data_i:in std_logic_vector(15 downto 0);
 		extended_i:in std_logic_vector(15 downto 0);
 		
 		
 		branch_type_i:in std_logic_vector(2 downto 0);
 		
 		branch_flag_o:out std_logic;
-		branch_addr_o:out std_logic_veector(15 downto 0);
+		branch_addr_o:out std_logic_vector(15 downto 0);
 		
 		
 		ALU_result_o:out std_logic_vector(15 downto 0);
@@ -77,27 +77,27 @@ begin
 	mem_wr_o<=mem_wr_i;
 	mem_rd_o<=mem_rd_i;
 	writeback_mux_o<=writeback_mux_i;
-	mem_wdata_o<=reg_src2_i;
+	mem_wdata_o<=reg_src2_data_i;
 	
 	
-	process(branch_type_i,extended_i,reg_src1_i)
+	process(branch_type_i,extended_i,reg_src1_data_i)
 	begin
 		case branch_type_i is
-			when BRJ_BEQZ=>if(reg_src1_i=ZeroWord)then
+			when BRJ_BEQZ=>if(reg_src1_data_i=ZeroWord)then
 									branch_addr_o<=extended_i;
 									branch_flag_o<=HIGH;
 								else
 									branch_addr_o<=ZeroWord;
 									branch_flag_o<=LOW;
 								end if;
-			when BRJ_BNEZ=>if(reg_src1_i=ZeroWord)then
+			when BRJ_BNEZ=>if(reg_src1_data_i=ZeroWord)then
 									branch_addr_o<=ZeroWord;
 									branch_flag_o<=LOW;
 								else
 									branch_addr_o<=extended_i;
 									branch_flag_o<=HIGH;
 								end if;
-			when BRJ_JR=>	branch_addr_o<=reg_src1_i;
+			when BRJ_JR=>	branch_addr_o<=reg_src1_data_i;
 								branch_flag_o<=HIGH;
 			when BRJ_B=>	branch_addr_o<=extended_i;
 								branch_flag_o<=LOW;
@@ -108,24 +108,24 @@ begin
 		end case;
 	end process;
 	
-	process(exe_mux1_i,reg_src1_i)
+	process(exe_mux1_i,reg_src1_data_i)
 	begin
 		case exe_mux1_i is
-			when '0'=>src_1<=reg_src1_i;
+			when '0'=>src_1<=reg_src1_data_i;
 			when '1'=>src_1<=ZeroWord;
 			when others=>src_1<=ZeroWord;
 		end case;
 	end process;
-	process(exe_mux2_i,reg_src2_i,extended_i)
+	process(exe_mux2_i,reg_src2_data_i,extended_i)
 	begin
 		case exe_mux2_i is
-			when '0'=>src_2<=reg_src2_i;
+			when '0'=>src_2<=reg_src2_data_i;
 			when '1'=>src_2<=extended_i;
 			when others=>src_2<=ZeroWord;
 		end case;
 	end process;
 	
-	process(exe_aluop_i,src_1,src_1)
+	process(exe_aluop_i,src_1,src_2)
 	begin
 			case exe_aluop_i is
 			when	OP_ADD=>ALU_result_o<=src_1+src_2;
