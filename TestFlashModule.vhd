@@ -37,25 +37,31 @@ entity TestFlashModule is
 		
 		
 		
-			  flash_byte : out std_logic;
-			  flash_vpen : out std_logic;
-			  flash_ce : out std_logic;
-			  flash_oe : out std_logic;				---ce0
-			  flash_we : out std_logic;
-			  flash_rp : out std_logic;
-			  flash_addr : out std_logic_vector(22 downto 0);
-			  flash_data : inout std_logic_vector(15 downto 0)
+		flash_byte : out std_logic;
+		flash_vpen : out std_logic;
+		flash_ce : out std_logic;
+		flash_oe : out std_logic;				---ce0
+		flash_we : out std_logic;
+		flash_rp : out std_logic;
+		flash_addr : out std_logic_vector(22 downto 0);
+		flash_data : inout std_logic_vector(15 downto 0)
 	);
 end TestFlashModule;
 
 architecture Behavioral of TestFlashModule is
 COMPONENT FLASH PORT(
 			  clk : in std_logic;
-			  FlashLoad_clk:in std_logic;
+			  FlashLoad_Complete:in std_logic;
 			  rst : in std_logic;
 			  
-			  addr_in:in std_logic_vector(22 downto 0);
-           data_out:out std_logic_vector(15 downto 0);
+			  
+			  
+			  ---RAM
+			  RAMAddr_i:in std_logic_vector(22 downto 0);
+			  ---VGA
+			  VGAAddr_i:in std_logic_vector(22 downto 0);	---VGAData addr in ram2
+           FlashData_o:out std_logic_vector(15 downto 0);
+			  
 			  
 			  flash_byte : out std_logic;
 			  flash_vpen : out std_logic;
@@ -68,57 +74,53 @@ COMPONENT FLASH PORT(
 			 
 	);
 	END COMPONENT;
-	signal FlashAddr_o :  std_logic_vector(22 downto 0);
-	signal FlashData_i :  std_logic_vector(15 downto 0);
-	signal clk_2:std_logic;
+	signal RAMAddr_i :  std_logic_vector(22 downto 0);
+	signal VGAAddr_i :  std_logic_vector(22 downto 0);
+	signal FlashData_o :  std_logic_vector(15 downto 0);
+	signal Flash_clk2:std_logic;
+	signal FlashLoad_Complete:std_logic;
 begin
+	FlashLoad_Complete<='0';
 	uut:FLASH PORT map(
 			  clk =>clk,
-			  FlashLoad_clk=>clk_2,
+			  FlashLoad_Complete=>FlashLoad_Complete,
+			  Flash_clk2=>Flash_clk2,
 			  rst =>rst,
 			  
-			  addr_in=>FlashAddr_o,
-           data_out=>FlashData_i,
-			  
+			  RAMAddr_i=>RAMAddr_i,
+			  VGAAddr_i=>VGAAddr_i,
+			  FlashData_o=>FlashData_o,
 			  flash_byte =>flash_byte,
 			  flash_vpen =>flash_vpen,
 			  flash_ce =>flash_ce,
-			  flash_oe =>flash_oe,				---ce0
+			  flash_oe =>Flash_oe,				---ce0
 			  flash_we =>flash_we,
 			  flash_rp =>flash_rp,
 			  flash_addr =>flash_addr,
 			  flash_data =>flash_data
 	);
-	process(clk)
-	begin
-		if (clk'event and clk='1') then
-			if(clk_2='1')then
-				clk_2<='0';
-			else
-				clk_2<='1';
-			end if;
-		end if;
-	end process;
-	
-	process(rst,clk,clk_2)
+	process(rst,clk,Flash_clk2)
 	begin
 		if(rst='0')then
-			FlashAddr_o<=(others=>'1');
+			RAMAddr_i<=(others=>'1');
+			VGAAddr_i<=(others=>'1');
 		else
-			if(clk'event and clk='0' and clk_2='1')then	---down side
-				FlashAddr_o<="0000000"&control_Addr_in;
+			if(clk'event and clk='0' and Flash_clk2='1')then	---down side
+				RAMAddr_i<="0000000"&control_Addr_in;
+				VGAAddr_i<="0000000"&control_Addr_in;
 			end if;
 		end if;
 	end process;
 	
 	
-	process(clk_2,rst)
+	process(Flash_clk2,rst)
 	begin
 		if(rst='0')then
 			display_Data_out<="0000000000000000";
 		else
-			if(clk_2'event and clk_2='1')then
-				display_Data_out<=FlashData_i;
+			if(Flash_clk2'event and Flash_clk2='1' )then
+			--if(not(FlashData_o=x"00FF"))then
+				display_Data_out<=FlashData_o;
 			end if;
 		end if;
 	end process;

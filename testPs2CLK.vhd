@@ -2,15 +2,15 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   00:14:05 11/30/2018
+-- Create Date:   17:59:04 12/02/2018
 -- Design Name:   
--- Module Name:   /media/yaozh16/00017DA30004166D/Academic/Grade3.1/CC/PRJ/MIPS16CPU/testCombination.vhd
+-- Module Name:   /media/yaozh16/00017DA30004166D/Academic/Grade3.1/CC/PRJ/MIPS16CPU/testPs2CLK.vhd
 -- Project Name:  MIPS16CPU
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: Combination
+-- VHDL Test Bench Created by ISE for module: PS2
 -- 
 -- Dependencies:
 -- 
@@ -32,51 +32,58 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY testCombination IS
-END testCombination;
+ENTITY testPs2CLK IS
+END testPs2CLK;
  
-ARCHITECTURE behavior OF testCombination IS 
+ARCHITECTURE behavior OF testPs2CLK IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT Combination
+    COMPONENT PS2
     PORT(
-         clk : IN  std_logic;
+         clk_ps2 : IN  std_logic;
+			data_ps2:IN std_logic;
          rst : IN  std_logic;
-         display1 : OUT  std_logic_vector(15 downto 0);
-         display2 : OUT  std_logic_vector(15 downto 0);
-         display3 : OUT  std_logic_vector(15 downto 0);
-         display4 : OUT  std_logic_vector(15 downto 0)
+         clk : IN  std_logic;
+         keycode : OUT  std_logic_vector(15 downto 0)
         );
     END COMPONENT;
     
 
    --Inputs
-   signal clk : std_logic := '0';
+   signal clk_ps2 : std_logic := '0';
    signal rst : std_logic := '0';
+   signal clk : std_logic := '0';
+	
+	signal	data_ps2:std_logic:='1';
 
  	--Outputs
-   signal display1 : std_logic_vector(15 downto 0);
-   signal display2 : std_logic_vector(15 downto 0);
-   signal display3 : std_logic_vector(15 downto 0);
-   signal display4 : std_logic_vector(15 downto 0);
+   signal keycode : std_logic_vector(15 downto 0);
 
    -- Clock period definitions
+   constant clk_ps2_period : time := 500 ns;
    constant clk_period : time := 10 ns;
  
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: Combination PORT MAP (
-          clk => clk,
+   uut: PS2 PORT MAP (
+          clk_ps2 => clk_ps2,
+          data_ps2 => data_ps2,
           rst => rst,
-          display1 => display1,
-          display2 => display2,
-          display3 => display3,
-          display4 => display4
+          clk => clk,
+          keycode => keycode
         );
 
    -- Clock process definitions
+   clk_ps2_process :process
+   begin
+		clk_ps2 <= '0';
+		wait for clk_ps2_period/2;
+		clk_ps2 <= '1';
+		wait for clk_ps2_period/2;
+   end process;
+ 
    clk_process :process
    begin
 		clk <= '0';
@@ -85,15 +92,15 @@ BEGIN
 		wait for clk_period/2;
    end process;
  
+ 
 
    -- Stimulus process
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
-		rst<='0';
       wait for 100 ns;	
-		rst<='1';
-      wait for clk_period*10;
+
+      wait for clk_ps2_period*10;
 
       -- insert stimulus here 
 

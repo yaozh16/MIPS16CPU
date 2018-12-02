@@ -61,8 +61,8 @@ ARCHITECTURE behavior OF testFlashIO IS
          Ram2OE : OUT  std_logic;
          Ram2WE : OUT  std_logic;
          Ram2EN : OUT  std_logic;
-         FlashLoad_Complete : OUT  std_logic;
-         FlashLoad_clk : OUT  std_logic;
+         FlashLoad_Complete:out std_logic;
+			Flash_clk2:in std_logic;
          FlashAddr_o : OUT  std_logic_vector(22 downto 0);
          FlashData_i : IN  std_logic_vector(15 downto 0);
          VGAAddr : IN  std_logic_vector(17 downto 0);
@@ -76,7 +76,8 @@ ARCHITECTURE behavior OF testFlashIO IS
     END COMPONENT;
     COMPONENT FLASH PORT(
 			  clk : in std_logic;
-			  FlashLoad_clk:in std_logic;
+			  FlashLoad_Complete:in std_logic;
+			  Flash_clk2:out std_logic;
 			  rst : in std_logic;
 			  
 			  addr_in:in std_logic_vector(22 downto 0);
@@ -205,9 +206,6 @@ BEGIN
 		clk <= '1';
 		wait for clk_period/2;
    end process;
-
- 
-
    -- Stimulus process
    stim_proc: process
    begin		
