@@ -1,0 +1,130 @@
+
+# PlanAhead Generated physical constraints 
+
+NET "clk" LOC = B9;
+NET "rst" LOC = U10;
+
+NET "flash_byte" LOC = C1;
+NET "flash_vpen" LOC = C2;
+NET "flash_ce" LOC = E4;
+NET "flash_oe" LOC = E1;
+NET "flash_we" LOC = D4;
+NET "flash_rp" LOC = D1;
+NET "flash_data[0]" LOC = J5; 
+NET "flash_data[1]" LOC = J4; 
+NET "flash_data[2]" LOC = J2; 
+NET "flash_data[3]" LOC = J1; 
+NET "flash_data[4]" LOC = H6; 
+NET "flash_data[5]" LOC = H5; 
+NET "flash_data[6]" LOC = H4; 
+NET "flash_data[7]" LOC = H3; 
+NET "flash_data[8]" LOC = H2; 
+NET "flash_data[9]" LOC = H1; 
+NET "flash_data[10]" LOC = G6; 
+NET "flash_data[11]" LOC = G5; 
+NET "flash_data[12]" LOC = G4; 
+NET "flash_data[13]" LOC = G3; 
+NET "flash_data[14]" LOC = F2; 
+NET "flash_data[15]" LOC = F1; 
+
+
+NET "flash_addr[0]" LOC = T2; 
+NET "flash_addr[1]" LOC = T1; 
+NET "flash_addr[2]" LOC = R3; 
+NET "flash_addr[3]" LOC = R2; 
+NET "flash_addr[4]" LOC = P4; 
+NET "flash_addr[5]" LOC = P3; 
+NET "flash_addr[6]" LOC = P2; 
+NET "flash_addr[7]" LOC = P1; 
+NET "flash_addr[8]" LOC = N5; 
+NET "flash_addr[9]" LOC = N4; 
+NET "flash_addr[10]" LOC = M6; 
+NET "flash_addr[11]" LOC = M5; 
+NET "flash_addr[12]" LOC = M4; 
+NET "flash_addr[13]" LOC = M3; 
+NET "flash_addr[14]" LOC = L6; 
+NET "flash_addr[15]" LOC = L5; 
+NET "flash_addr[16]" LOC = L4; 
+NET "flash_addr[17]" LOC = L3; 
+NET "flash_addr[18]" LOC = L2; 
+NET "flash_addr[19]" LOC = L1; 
+NET "flash_addr[20]" LOC = K6; 
+NET "flash_addr[21]" LOC = K5; 
+NET "flash_addr[22]" LOC = K4; 
+
+NET "control_Addr_in[15]" LOC = J6;
+NET "control_Addr_in[14]" LOC = J7;
+NET "control_Addr_in[13]" LOC = K2;
+NET "control_Addr_in[12]" LOC = K7;
+NET "control_Addr_in[11]" LOC = M1;
+NET "control_Addr_in[10]" LOC = N1;
+NET "control_Addr_in[9]" LOC = N2;
+NET "control_Addr_in[8]" LOC = R1;
+NET "control_Addr_in[7]" LOC = R4;
+NET "control_Addr_in[6]" LOC = U1;
+NET "control_Addr_in[5]" LOC = V2;
+NET "control_Addr_in[4]" LOC = V3;
+NET "control_Addr_in[3]" LOC = V4;
+NET "control_Addr_in[2]" LOC = U8;
+NET "control_Addr_in[1]" LOC = R7;
+NET "control_Addr_in[0]" LOC = T7;
+
+NET "display_Data_out[0]" LOC=D10;
+NET "display_Data_out[1]" LOC=E10;
+NET "display_Data_out[2]" LOC=A11;
+NET "display_Data_out[3]" LOC=B11;
+NET "display_Data_out[4]" LOC=C11;
+NET "display_Data_out[5]" LOC=D11;
+NET "display_Data_out[6]" LOC=E11;
+NET "display_Data_out[7]" LOC=F11;
+NET "display_Data_out[8]" LOC=A12;
+NET "display_Data_out[9]" LOC=E12;
+NET "display_Data_out[10]" LOC=F12;
+NET "display_Data_out[11]" LOC=A13;
+NET "display_Data_out[12]" LOC=B13;
+NET "display_Data_out[13]" LOC=D13;
+NET "display_Data_out[14]" LOC=E13;
+NET "display_Data_out[15]" LOC=A14;
+
+NET "RAM1EN" LOC = M15;
+NET "RAM1OE" LOC = M16;
+NET "RAM1WE" LOC = M18;
+NET "RAM1Addr[17]" LOC = H17;
+NET "RAM1Addr[16]" LOC = H16;
+NET "RAM1Addr[15]" LOC = H15;
+NET "RAM1Addr[14]" LOC = H14;
+NET "RAM1Addr[13]" LOC = G16;
+NET "RAM1Addr[12]" LOC = G15;
+NET "RAM1Addr[11]" LOC = G14;
+NET "RAM1Addr[10]" LOC = G13;
+NET "RAM1Addr[9]" LOC = F18;
+NET "RAM1Addr[8]" LOC = F17;
+NET "RAM1Addr[7]" LOC = F15;
+NET "RAM1Addr[6]" LOC = F14;
+NET "RAM1Addr[5]" LOC = E16;
+NET "RAM1Addr[4]" LOC = E15;
+NET "RAM1Addr[3]" LOC = D17;
+NET "RAM1Addr[2]" LOC = D16;
+NET "RAM1Addr[1]" LOC = C18;
+NET "RAM1Addr[0]" LOC = C17;
+
+
+NET "RAM1Data[15]" LOC = M14;
+NET "RAM1Data[14]" LOC = M13;
+NET "RAM1Data[13]" LOC = L18;
+NET "RAM1Data[12]" LOC = L17;
+NET "RAM1Data[11]" LOC = L16;
+NET "RAM1Data[10]" LOC = L15;
+NET "RAM1Data[9]" LOC = K15;
+NET "RAM1Data[8]" LOC = K14;
+NET "RAM1Data[7]" LOC = K13;
+NET "RAM1Data[6]" LOC = K12;
+NET "RAM1Data[5]" LOC = J17;
+NET "RAM1Data[4]" LOC = J16;
+NET "RAM1Data[3]" LOC = J15;
+NET "RAM1Data[2]" LOC = J14;
+NET "RAM1Data[1]" LOC = J13;
+NET "RAM1Data[0]" LOC = J12;
+
+NET "se_wrn_o" LOC=U5;
+NET "se_rdn_o" LOC=C14;

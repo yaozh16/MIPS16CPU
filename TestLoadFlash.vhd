@@ -51,7 +51,11 @@ entity TestLoadFlash is
 		Ram1Data            : inout std_logic_vector(15 downto 0);
 		Ram1OE              : out std_logic;
 		Ram1WE              : out std_logic;
-      Ram1EN              : out std_logic
+      Ram1EN              : out std_logic;
+		
+		
+		se_wrn_o            : out std_logic;
+		se_rdn_o            : out std_logic
 	);
 end TestLoadFlash;
 
@@ -129,8 +133,6 @@ signal FlashAddr_o         : std_logic_vector(22 downto 0);
 signal FlashData_i         : std_logic_vector(15 downto 0);
 signal VGAAddr_char        : std_logic_vector(17 downto 0);
 signal VGAData_char        : std_logic_vector(15 downto 0);
-signal se_wrn_o            : std_logic:='0';
-signal se_rdn_o            : std_logic:='0';
 signal se_tbre_i           : std_logic:='0';
 signal se_tsre_i           : std_logic:='0';
 signal se_data_ready_i     : std_logic:='0';

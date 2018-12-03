@@ -37,6 +37,9 @@ use WORK.DEFINE.ALL;
 
 entity INST_ROM is
 	Port(
+	
+		serial_rw_install_o:std_logic;	----serial write install 
+		
 		clk:in std_logic;
 		rst:in std_logic;
 		
@@ -87,14 +90,10 @@ architecture Behavioral of INST_ROM is
 	signal LoadComplete: std_logic:=LOW;
 	signal serial_write:std_logic:=LOW;
 	signal serial_read:std_logic:=LOW;
+	signal serial_rw_install:std_logic:=LOW;
 	signal FlashAddr:std_logic_vector(22 downto 0);
-	signal Ram1Data_t:std_logic_vector(15 downto 0);
 	
 begin
-	process(Ram1Data)
-	begin
-		Ram1Data_t<=ZeroWord;
-	end process;
 	FlashLoadComplete_o<=LoadComplete;
 	FlashAddr_o<=FlashAddr;
 	Ram2EN<=LOW;
@@ -110,17 +109,15 @@ begin
 	begin
 		if(rst=LOW)then
 			LoadComplete<=LOW;
-			FlashAddr<="1111"&"1111"&"1111"&"1111"&"1111"&"111";
+			FlashAddr<="1111"&"1111"&"1111"&"1111"&"1111"&"110";
 		else
 			if(LoadComplete=LOW)then
 				if(clk'event and clk=LOW and Flash_clk2=HIGH)then	---down side
-					if(FlashAddr="11111111"&"11111111"&"1111"&"111")then
-						FlashAddr<=(others=>'0');
-					elsif(FlashAddr<x"8")then
-						FlashAddr<=FlashAddr+("00000000"&"00000000"&"0000"&"001");
-					else
-						FlashAddr<=FlashAddr+("00000000"&"00000000"&"0000"&"001");
+					if(FlashAddr="0000000"&x"FFFF")then
+						FlashAddr<=FlashAddr+((x"00000")&"001");
 						LoadComplete<=HIGH;
+					else
+						FlashAddr<=FlashAddr+((x"00000")&"001");
 					end if;
 				end if;
 			end if;
@@ -132,7 +129,7 @@ begin
 	process(mem_addr_i,FlashAddr,LoadComplete,id_addr_i,mem_rd_i,mem_wr_i) 
 	begin
 		if(LoadComplete=LOW)then
-			Ram1Addr<=FlashAddr(17 downto 0);
+			Ram1Addr<=FlashAddr(18 downto 1);
 		elsif(((mem_wr_i or mem_rd_i)=HIGH))then
 			Ram1Addr<="00"&mem_addr_i;
 		else
@@ -140,9 +137,15 @@ begin
 		end if;
 	end process;
 	
-	
-	
-	
+	serial_rw_install_o<serial_rw_install;
+	process(clk,tbre)
+	begin
+		if(tbre='0')then
+			serial_rw_install<=not tbre;
+		elsif(clk'event and clk='1')then
+			serial_rw_install<=not tbre;
+		end if;
+	end process;
 	Ram1_data:process(rst,clk,FlashData_i,LoadComplete)
 	begin
 		if(rst='0')then
@@ -151,10 +154,12 @@ begin
 			Ram1Data<=FlashData_i;
 		else
 			if(clk'event and clk=LOW)then
-				if(mem_wr_i = Enable) then
-					Ram1Data <= mem_wdata_i or ZeroWord;
-				else
-					Ram1Data <= (others => 'Z');
+				if(serial_rw_install = '0')then
+					if(mem_wr_i = Enable) then
+						Ram1Data <= mem_wdata_i;
+					else
+						Ram1Data <= (others => 'Z');
+					end if;
 				end if;
 			end if;
 		end if;
@@ -185,8 +190,12 @@ begin
 				serial_read <=LOW;
 			else
 				---mem
-				if(mem_wr_i = Enable) then ---write
-					if(mem_addr_i=x"BF00")then			---write_serial
+				if(serial_rw_install='1')then
+					Ram1WE<=HIGH;
+					Ram1EN<=HIGH;
+					Ram1OE<=HIGH;
+				elsif(mem_wr_i = Enable) then ---write
+					if(tbre='0' or mem_addr_i=x"BF00")then			---write_serial
 						Ram1WE<=HIGH;
 						Ram1EN<=HIGH;
 						Ram1OE<=HIGH;
@@ -219,7 +228,7 @@ begin
 						serial_write<=LOW;				
 						serial_read <=LOW;
 					end if;		
-				else 									---read_Ram1
+				else 									---read_Ram1 for id
 					Ram1EN <= LOW;				
 					Ram1OE <= LOW;	
 					Ram1WE <= HIGH;
@@ -236,10 +245,10 @@ begin
 			
 	
 						
-	Inst_out: process(rst,Ram2Data,LoadComplete,mem_rd_i,mem_wr_i,Ram1Data_t) ---id out
+	Inst_out: process(rst,Ram2Data,LoadComplete,mem_rd_i,mem_wr_i,Ram1Data) ---id out
 	begin
-		if(rst=HIGH and LoadComplete=HIGH and ((mem_rd_i or mem_wr_i)=LOW))then
-			id_inst_o<=Ram1Data_t;
+		if(rst=HIGH and LoadComplete=HIGH and ((mem_rd_i or mem_wr_i or serial_rw_install)=LOW))then
+			id_inst_o<=Ram1Data;
 			id_succ_o<=HIGH;
 		else
 			id_inst_o<=NopInst;
@@ -248,17 +257,17 @@ begin
 	end process;
 	
 	
-	Mem_out : process(rst,id_addr_i,mem_rd_i,Ram2Data,Ram1Data_t,LoadComplete,mem_addr_i) ---mem out
+	Mem_out : process(rst,id_addr_i,mem_rd_i,Ram2Data,Ram1Data,LoadComplete,mem_addr_i) ---mem out
 	begin
 		if((rst and mem_rd_i)=HIGH)then ---working state and need output
 			if(LoadComplete=LOW) then
 				mem_rdata_o<=ZeroWord;
 			elsif(mem_addr_i=x"BF00")then	---read_serial
-				mem_rdata_o<=Ram1Data_t;
+				mem_rdata_o<=Ram1Data;
 			elsif(mem_addr_i=x"BF01")then	---read_serial_flag
 				mem_rdata_o<=Zero15&se_data_ready_i;
 			else
-				mem_rdata_o<=Ram1Data_t;		---read ram1
+				mem_rdata_o<=Ram1Data;		---read ram1
 			end if;
 		else
 			mem_rdata_o<=ZeroWord;
@@ -279,7 +288,7 @@ begin
 				se_rdn_o<=HIGH;
 			end if;
 			if(serial_write=HIGH)then
-				se_wrn_o<=clk;
+				se_wrn_o<=clk or not(tbre and tsre);
 			else
 				se_wrn_o<=HIGH;
 			end if;
@@ -313,7 +322,7 @@ begin
 				Ram2Addr<=FlashAddr(17 downto 0);
 				Ram2OE <= HIGH;
 			else
-				VGAData_char<=Ram1Data_t;
+				VGAData_char<=Ram1Data;
 				Ram2Data<=(others=>'Z');		---read VGA Data
 				Ram2Addr<=VGAAddr_char;		---from vga component
 				Ram2OE<=LOW;

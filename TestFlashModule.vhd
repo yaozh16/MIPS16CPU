@@ -52,6 +52,7 @@ architecture Behavioral of TestFlashModule is
 COMPONENT FLASH PORT(
 			  clk : in std_logic;
 			  FlashLoad_Complete:in std_logic;
+			  Flash_clk2:out std_logic;
 			  rst : in std_logic;
 			  
 			  
@@ -106,8 +107,8 @@ begin
 			VGAAddr_i<=(others=>'1');
 		else
 			if(clk'event and clk='0' and Flash_clk2='1')then	---down side
-				RAMAddr_i<="0000000"&control_Addr_in;
-				VGAAddr_i<="0000000"&control_Addr_in;
+				RAMAddr_i<="000000"&control_Addr_in&"0";
+				VGAAddr_i<="000000"&control_Addr_in&"0";
 			end if;
 		end if;
 	end process;

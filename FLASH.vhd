@@ -70,9 +70,11 @@ architecture Behavioral of FLASH is
 	signal clk_2:std_logic;
 begin
 	Flash_clk2<=clk_2;
-	process(clk)
+	process(clk,rst)
 	begin
-		if (clk'event and clk=HIGH) then
+		if(rst=LOW)then
+			clk_2<=HIGH;
+		elsif (clk'event and clk=HIGH) then
 			if(clk_2=HIGH)then
 				clk_2<=LOW;
 			else
