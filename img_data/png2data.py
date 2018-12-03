@@ -1,13 +1,7 @@
 import sys
-import struct
 from PIL import Image
 
-seq = sys.argv[1]
-#target = sys.argv[-1]
-print('seq = ', end='')
-print(seq)
-#print('target = ', end = '')
-#print(target)
+path_name = 'cat.data'
 
 def binstr(x, length):
     str = bin(x)[2:]
@@ -27,9 +21,8 @@ def hexstr(x, length):
 
 addr = 32768;
 
-
-with open('cat.data', 'wb') as f:
-    img = seq
+with open(path_name, 'wb') as f:
+    img = sys.argv[1]
     im = Image.open(img)
     width, height = im.size
     print(im.mode)
