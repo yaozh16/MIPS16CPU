@@ -1,7 +1,8 @@
 import sys
 from PIL import Image
 
-path_name = 'cat.data'
+path_name = 'dog.data'
+addr = 32768;
 
 def binstr(x, length):
     str = bin(x)[2:]
@@ -19,7 +20,6 @@ def hexstr(x, length):
     else:
         return str
 
-addr = 32768;
 
 with open(path_name, 'wb') as f:
     img = sys.argv[1]
@@ -27,7 +27,6 @@ with open(path_name, 'wb') as f:
     width, height = im.size
     print(im.mode)
 
-    ratio = 0
     change = 0
     if (width > 320):
         width = 320
@@ -58,7 +57,6 @@ with open(path_name, 'wb') as f:
             G = pix[x, y][1]
             B = pix[x, y][2]
             i=R/32*64+G/32*8+B/32
-            s=hex(int(i))[2:]
-            s="0"*(4-len(s))+s
+            s=hexstr(int(i),4)
             w_str = ddr + '=' + s + "\n"
             f.write(str.encode(w_str))
