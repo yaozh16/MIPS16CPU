@@ -58,22 +58,34 @@ end VGA_CTRL;
 
 architecture Behavioral of VGA_CTRL is
 	signal VGAdata_current:std_logic_vector(15 downto 0);
-	signal VGAaddr_next_x:integer range 0 to 640:=0;
-	signal VGAaddr_next_y:integer range 0 to 480:=0;
+	signal VGAdata:std_logic_vector(15 downto 0);
+	signal VGAAddr:std_logic_vector(22 downto 0);
+	signal VGAaddr_next_x:integer:=0;
+	signal VGAaddr_next_y:integer:=0;
 	constant maxX:integer:=799;
-	constant startX:integer:=656;
 	constant maxY:integer:=524;
+	constant startX:integer:=656;
 	constant startY:integer:=490;
 	signal rowY:integer:=0;
 	signal colX:integer:=0;
+	signal markcolX:integer:=0;
 	signal clk_2:std_logic:='0';
-begin
 	
+	
+begin
+	VGAAddr_o<=VGAAddr;
+	--VGAAddr_o<=((conv_std_logic_vector((VGAAddr_next_x/2),22))+
+	--				conv_std_logic_vector(((VGAAddr_next_y/2)*320),22))&"0";
+	VGAdata<=VGAdata_i;
 -- 640 * 480 @60MHz
 -- divided into 320 * 240 blocks;
 	process(VGAaddr_next_x,VGAaddr_next_y)
 	begin
-		VGAAddr_o<="0000000"&"1000000000000000"+conv_std_logic_vector((VGAAddr_next_y/2)*160,18)+conv_std_logic_vector((VGAAddr_next_x/2),18);
+		VGAAddr<=(	("00"&x"8000")+
+							(conv_std_logic_vector(((VGAAddr_next_y/2)*320),22))+
+							(conv_std_logic_vector((VGAAddr_next_x/2),22))
+						)
+						&"0";
 	end process;
 	process(clk)
 	begin
@@ -100,13 +112,28 @@ begin
 		end if;
 	end process;
 	
-	process(rst,clk_2)
+	
+	
+	process(rst,clk_2,rowY,colX)
 	begin
 		if(rst=LOW)then
-			colX<=656;
-			rowY<=490;
+			colX<=maxX-1;
+			rowY<=maxY;
 		else
+			if(colX=maxX)then
+				VGAaddr_next_x<=0;
+				if(rowY=maxY)then
+					VGAaddr_next_y<=0;
+				else
+					VGAaddr_next_y<=rowY+1;
+				end if;
+			else
+				VGAaddr_next_x<=colX+1;
+				VGAaddr_next_y<=rowY;
+			end if;
 			if(clk_2'event and clk_2=HIGH)then
+				VGAdata_current<=VGAdata;
+				markcolX<=VGAaddr_next_x;
 				if(colX<maxX)then
 					colX<=colX+1;
 				else
@@ -121,36 +148,29 @@ begin
 		end if;
 	end process;
 	
-	process(rst,clk_2,rowY,colX)
-	begin
-		if(rst=LOW)then
-			VGAaddr_next_x<=0;
-			VGAaddr_next_y<=0;
-		else
-			if(colX=maxX)then
-				VGAaddr_next_x<=0;
-				if(rowY=maxY)then
-					VGAaddr_next_y<=0;
-				else
-					VGAaddr_next_y<=rowY+1;
-				end if;
-			else
-				VGAaddr_next_x<=colX+1;
-				VGAaddr_next_y<=0;
-			end if;
-		end if;
-		if(clk_2'event and clk_2=HIGH)then
-			VGAdata_current<=VGAData_i;
-		end if;
-	end process;
-	
 	
 	RGBoutput:process(VGAdata_current,rowY,colX)
 	begin
-		if(colX<640 and rowY<480)then
-			Rs<=VGAdata_current(8 downto 6);
-			Gs<=VGAdata_current(5 downto 3);
-			Bs<=VGAdata_current(2 downto 0);
+		if((colX<640) and (rowY<480))then
+			if(VGAdata_current(15 downto 9)="0000000")then
+				if(markcolX=colX)then
+				--if(colX<320)then
+					Rs<=VGAdata_current(8 downto 6);
+					Gs<=VGAdata_current(5 downto 3);
+					Bs<=VGAdata_current(2 downto 0);
+					---Rs<="000";
+					---Gs<="111";
+					---Bs<="111";
+				else
+					Rs<="111";
+					Gs<="000";
+					Bs<="111";
+				end if;
+			else
+				Rs<="111";
+				Gs<="111";
+				Bs<="111";
+			end if;
 		else
 			Rs<="000";
 			Gs<="000";

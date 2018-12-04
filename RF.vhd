@@ -452,7 +452,7 @@ begin
 																when "110"=>exe_aluop_o<=OP_ADD;			---JARL
 																				exe_mux1_o<=HIGH;
 																				exe_mux2_o<=HIGH;
-																				reg_src_addr1<="0"&instr_i(10 downto 8);		--Rx
+																				reg_src_addr1<="0"&instr_i(10 downto 8);		--Rx: for exe to jump
 																				reg_src_addr2<=RegAddrNOP;
 																				extend_ctrl<=EXTEND_PC;
 																				reg_dest_o<=RegAddrRA;

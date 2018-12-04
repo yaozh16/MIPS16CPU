@@ -34,7 +34,9 @@ entity CPU is
 		clk:in std_logic;
 		rst:in std_logic;
 		
+		display_o:out std_logic_vector(15 downto 0);
 		
+		se_rw_stall_i:in std_logic;	---from MEM
 		id_addr_i_INST_ROM:out std_logic_vector (15 downto 0);	---pc
 		id_inst_o_INST_ROM:in std_logic_vector(15 downto 0);
 		id_succ_o_INST_ROM:in std_logic;
@@ -144,7 +146,10 @@ architecture Behavioral of CPU is
 				component StallFlushCtrlUnit
 				port (
 				  branch_flag_i          : in  std_logic;
+				  se_rw_stall_i          : in  std_logic;
 				  mem_rd_i_EXE_MEM       : in  std_logic;
+				  mem_wr_i_RF_EXE        : in  std_logic;
+				  mem_rd_i_RF_EXE        : in  std_logic;
 				  reg_exemem_dest_addr_i : in  std_logic_vector(3 downto 0);
 				  reg_src1_addr_i        : in  std_logic_vector(3 downto 0);
 				  reg_src2_addr_i        : in  std_logic_vector(3 downto 0);
@@ -340,7 +345,9 @@ architecture Behavioral of CPU is
 
 
 begin
-
+	
+	display_o<=pc_o_PCIF(15 downto 0);
+	
 	id_addr_i_INST_ROM<=pc_o_PCIF;
 ---PCIF
 PCIF_component:PCIF port map(
@@ -510,8 +517,11 @@ Reg_mem_wb_component:Reg_mem_wb port map(
 
 ---StallFlushCtrlUnit
 StallFlushCtrlUnit_component:StallFlushCtrlUnit port map(
+	se_rw_stall_i=>se_rw_stall_i,
 	branch_flag_i=>branch_flag_o_EXE,
 	mem_rd_i_EXE_MEM=>mem_rd_i_MEM,
+	mem_wr_i_RF_EXE=>mem_wr_i_EXE,
+	mem_rd_i_RF_EXE=>mem_rd_i_EXE,
 	reg_exemem_dest_addr_i=>reg_dest_i_MEM,
 	reg_src1_addr_i=>reg_src1_addr_i_EXE_FF,
 	reg_src2_addr_i=>reg_src2_addr_i_EXE_FF,

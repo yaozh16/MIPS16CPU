@@ -49,7 +49,7 @@ end TestVGAModule;
 
 architecture Behavioral of TestVGAModule is
 	component VGA_CTRL port(
-		VGAAddr_o:out std_logic_vector(17 downto 0);		---send to INST_ROM
+		VGAAddr_o:out std_logic_vector(22 downto 0);		---send to INST_ROM
 		VGAData_i:in std_logic_vector(15 downto 0);		---recv from INST_ROM
 		
 		clk:in std_logic;
@@ -64,7 +64,7 @@ architecture Behavioral of TestVGAModule is
 		Vs:out std_logic
 	);
 	end component;
-	signal VGAAddr_o: std_logic_vector(17 downto 0);		---send to INST_ROM
+	signal VGAAddr_o: std_logic_vector(22 downto 0);		---send to INST_ROM
 	signal VGAData_i: std_logic_vector(15 downto 0);		---recv from INST_ROM
 	signal clk_count:integer:=0;
 	signal color:std_logic_vector(8 downto 0):="000000000";
@@ -96,7 +96,7 @@ begin
 			end if;
 		end if;
 	end process;
-	colX_display<=VGAData_i;
+	colX_display<=VGAAddr_o(16 downto 1);
 	VGAData_i<="0000000"&color;
 end Behavioral;
 

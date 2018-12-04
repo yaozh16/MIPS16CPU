@@ -33,12 +33,15 @@ entity StallFlushCtrlUnit is
 		
 		branch_flag_i:in std_logic;	---from EXE
 		
+		se_rw_stall_i:in std_logic;	---from MEM
 		
 		----need to stall:
 		--PC |RF  |	EXE(LW) | MEM |WB
 		--			 ^			  ^
 		--s  s	 s			  f	  
 		mem_rd_i_EXE_MEM:in std_logic;									-- from exe_mem_regs
+		mem_wr_i_RF_EXE:in std_logic;									-- from exe_mem_regs
+		mem_rd_i_RF_EXE:in std_logic;									-- from exe_mem_regs
 		reg_exemem_dest_addr_i:in std_logic_vector(3 downto 0);	-- from exe_mem_regs
 		reg_src1_addr_i:in std_logic_vector(3 downto 0);		---from rf_exe regs
 		reg_src2_addr_i:in std_logic_vector(3 downto 0);		-- from rf_exe regs
@@ -71,6 +74,10 @@ begin
 			--- LW conflict
 			RegStalls_o<="11100";
 			RegFlushs_o<= "0010";
+		elsif(se_rw_stall_i='1' and (mem_wr_i_RF_EXE or mem_rd_i_RF_EXE)='1')then
+			----Waiting until serial port finished read or write
+			RegStalls_o<="11110";
+			RegFlushs_o<="0000";
 		else
 			RegStalls_o<="00000";
 			RegFlushs_o<= "0000";

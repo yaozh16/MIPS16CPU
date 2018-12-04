@@ -71,7 +71,7 @@ begin
 	process(clk,LW_stall_i,id_succ_i)
 	begin
 		if(clk'event and clk=LOW)then
-			install<=LW_stall_i and not id_succ_i;
+			install<=LW_stall_i or not id_succ_i;
 		end if;
 	end process;
 end Behavioral;
