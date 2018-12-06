@@ -37,9 +37,10 @@ entity PS2 is
 		rst:in std_logic;
 		clk:in std_logic;
 		
-		---7 downto 0:keycode
-		---15 16: pressed
-		keycode:out std_logic_vector(15 downto 0)		
+		
+		keycode:out std_logic_vector(15 downto 0)	
+		---7 downto 0 is keycode
+		---15 16 is pressed
 	);
 end PS2;
 
@@ -63,7 +64,7 @@ begin
 	
 	keycode_current<=	keydata(0)&keydata(1)&keydata(2)&keydata(3)
 							&keydata(4)&keydata(5)&keydata(6)&keydata(7);
-	process(rst,clk,clk_ps2)
+	process(rst,clk,clk_f)
 	begin
 		if(rst='0')then
 			dataCount<=0;

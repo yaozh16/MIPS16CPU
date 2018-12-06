@@ -32,12 +32,12 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY testCPU IS
-END testCPU;
+ENTITY testCPU2 IS
+END testCPU2;
  
-ARCHITECTURE behavior OF testCPU IS 
+ARCHITECTURE behavior OF testCPU2 IS 
 
-
+signal sw_in: std_logic_vector(15 downto 0);
 signal FlashLoadComplete_o : std_logic;   ---not used
 signal Flash_clk2          : std_logic;   ---not used
 signal FlashAddr_o         : std_logic_vector(22 downto 0); --not used
@@ -49,7 +49,6 @@ signal se_tsre_i           : std_logic;
 signal se_data_ready_i     : std_logic;
 signal clk: std_logic;
 signal rst: std_logic;
-
 signal RAM1Addr: std_logic_vector(17 downto 0);
 signal RAM1Data: std_logic_vector(15 downto 0);
 signal RAM1EN:std_logic;
@@ -82,6 +81,7 @@ signal VGAData_o_INST_ROM: std_logic_vector(15 downto 0);			---to VGACtrl module
     ---pipeline compoonents
 				component PCIF
 				port (
+					sw_in:in std_logic_vector(15 downto 0);
 				  clk           : in  std_logic;
 				  rst           : in  std_logic;
 				  LW_stall_i    : in  std_logic;
@@ -134,6 +134,7 @@ signal VGAData_o_INST_ROM: std_logic_vector(15 downto 0);			---to VGACtrl module
 
 				component EXE
 				port (
+				  stall           : in std_logic;		
 				  exe_aluop_i     : in  std_logic_vector(3 downto 0);
 				  exe_mux1_i      : in  std_logic;
 				  exe_mux2_i      : in  std_logic;
@@ -417,6 +418,7 @@ BEGIN
  
 ---PCIF
 PCIF_component:PCIF port map(
+sw_in=>sw_in,
 clk=>clk,
 rst=>rst,
 LW_stall_i=>RegStalls_o_StallFlushCtrlUnit(4),
@@ -510,6 +512,7 @@ reg_src2_data_o=>reg_src2_data_i_EXE
 );
 ---EXE
 EXE_component:EXE port map(
+stall=>RegStalls_o_StallFlushCtrlUnit(2),
 exe_aluop_i=>exe_aluop_i_EXE,
 exe_mux1_i=>exe_mux1_i_EXE,
 exe_mux2_i=>exe_mux2_i_EXE,
@@ -664,6 +667,7 @@ INST_ROM_i : INST_ROM
    begin		
       -- hold reset state for 100 ns.
 		rst<='0';
+		sw_in<=(others=>'0');
       wait for 1 ns;	
 		rst<='1';
       wait for clk_period;

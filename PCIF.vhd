@@ -32,6 +32,7 @@ use work.DEFINE.ALL;
 
 entity PCIF is
 	port(
+		sw_in:in std_logic_vector(15 downto 0);
 		clk: in std_logic;
 		rst: in std_logic;
 		LW_stall_i:in std_logic;
@@ -55,10 +56,10 @@ architecture Behavioral of PCIF is
 begin
 	pc_o<=pc;
 	instruction_o<=instruction_i;
-	process(clk,rst)
+	process(clk,rst,sw_in)
 	begin
 		if(rst=LOW)then
-			pc<=ZeroWord;
+			pc<=sw_in;
 		elsif (clk'event and clk=HIGH) then
 			if(branch_flag_i=HIGH)then
 				pc<=branch_addr_i;

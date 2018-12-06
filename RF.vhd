@@ -32,6 +32,7 @@ use work.DEFINE.ALL;
 
 entity RF is
 	port(
+		rst:in std_logic;
 		clk:in std_logic;
 		pc_i:in std_logic_vector(15 downto 0);
 		instr_i: in std_logic_vector(15 downto 0);
@@ -75,13 +76,20 @@ begin
 	reg_src_data1<=Regs(CONV_INTEGER(reg_src_addr1));
 	reg_src_data2<=Regs(CONV_INTEGER(reg_src_addr2));
 	--- write back
-	process(clk,reg_dest_i,reg_wdata_i)
+	process(clk,reg_dest_i,reg_wdata_i,rst)
 	begin 
-			if(clk'event and clk=HIGH)then
+			
+		if(rst=LOW)then
+			for i in 0 to 15 loop
+					Regs(i)<=ZeroWord;
+			end loop;
+		else
+			if(clk'event and clk=LOW)then
 				if(not(reg_dest_i=RegAddrNOP))then
 					Regs(CONV_INTEGER(reg_dest_i))<=reg_wdata_i;
 				end if;
 			end if;
+		end if;
 	end process;
 	
 	---extend ctrl
@@ -106,6 +114,7 @@ begin
 	end process;
 	
 	process(instr_i,stall_i)
+		variable i:integer:=0;
 	begin
 		if(stall_i=HIGH)then---pause nop
 			exe_aluop_o<=OP_NOP;
@@ -349,7 +358,7 @@ begin
 									exe_mux1_o<=HIGH;
 									exe_mux2_o<=LOW;
 									reg_src_addr1<=RegAddrNOP;		
-									reg_src_addr2<="0"&instr_i(7 downto 5);		--Rx
+									reg_src_addr2<="0"&instr_i(7 downto 5);		--Ry
 									extend_ctrl<=EXTEND_NOP;
 									reg_dest_o<="0"&instr_i(10 downto 8);		--Rx
 									writeback_mux_o<=MEM_MUX_ALU_RESULT;
@@ -407,7 +416,7 @@ begin
 														reg_src_addr1<="0"&instr_i(10 downto 8);		--Rx
 														reg_src_addr2<="0"&instr_i( 7 downto 5);		--Ry
 														extend_ctrl<=EXTEND_NOP;
-														reg_dest_o<=RegAddrNOP;
+														reg_dest_o<="0"&instr_i( 4 downto 2);	--Rz
 														writeback_mux_o<=MEM_MUX_ALU_RESULT;
 														mem_wr_o<=LOW;
 														mem_rd_o<=LOW;
@@ -449,7 +458,29 @@ begin
 																				mem_wr_o<=LOW;
 																				mem_rd_o<=LOW;
 																				branch_type_o<=BRJ_JR;
-																when "110"=>exe_aluop_o<=OP_ADD;			---JARL
+																when "001"=>exe_aluop_o<=OP_NOP;			---JRRA
+																				exe_mux1_o<=LOW;
+																				exe_mux2_o<=LOW;
+																				reg_src_addr1<=RegAddrRA;		--RA
+																				reg_src_addr2<=RegAddrNOP;
+																				extend_ctrl<=EXTEND_NOP;
+																				reg_dest_o<=RegAddrNOP;
+																				writeback_mux_o<=MEM_MUX_ALU_RESULT;
+																				mem_wr_o<=LOW;
+																				mem_rd_o<=LOW;
+																				branch_type_o<=BRJ_JR;
+																when "010"	=>	exe_aluop_o<=OP_ADD;		---MFPC
+																					exe_mux1_o<=HIGH;
+																					exe_mux2_o<=HIGH;
+																					reg_src_addr1<=RegAddrNOP;
+																					reg_src_addr2<=RegAddrNOP;
+																					extend_ctrl<=EXTEND_PC;
+																					reg_dest_o<="0"&instr_i(10 downto 8);		--Rx
+																					writeback_mux_o<=MEM_MUX_ALU_RESULT;
+																					mem_wr_o<=LOW;
+																					mem_rd_o<=LOW;
+																					branch_type_o<=BRJ_NOP;
+																when "110"=>exe_aluop_o<=OP_ADD;			---JALR
 																				exe_mux1_o<=HIGH;
 																				exe_mux2_o<=HIGH;
 																				reg_src_addr1<="0"&instr_i(10 downto 8);		--Rx: for exe to jump
@@ -549,17 +580,6 @@ begin
 															mem_wr_o<=LOW;
 															mem_rd_o<=LOW;
 															branch_type_o<=BRJ_NOP;
-										when "01110"=>	exe_aluop_o<=OP_XOR;			---XOR
-															exe_mux1_o<=LOW;
-															exe_mux2_o<=LOW;
-															reg_src_addr1<="0"&instr_i( 10 downto 8);		--Rx
-															reg_src_addr2<="0"&instr_i( 7 downto 5);		--Ry
-															extend_ctrl<=EXTEND_NOP;
-															reg_dest_o<="0"&instr_i( 10 downto 8);	--Rx
-															writeback_mux_o<=MEM_MUX_ALU_RESULT;
-															mem_wr_o<=LOW;
-															mem_rd_o<=LOW;
-															branch_type_o<=BRJ_NOP;
 										when "01100"=>	exe_aluop_o<=OP_AND;			---AND
 															exe_mux1_o<=LOW;
 															exe_mux2_o<=LOW;
@@ -567,6 +587,17 @@ begin
 															reg_src_addr2<="0"&instr_i( 7 downto 5);		--Ry
 															extend_ctrl<=EXTEND_NOP;
 															reg_dest_o<="0"&instr_i(10 downto 8);	--Rx
+															writeback_mux_o<=MEM_MUX_ALU_RESULT;
+															mem_wr_o<=LOW;
+															mem_rd_o<=LOW;
+															branch_type_o<=BRJ_NOP;
+										when "01110"=>	exe_aluop_o<=OP_XOR;			---XOR
+															exe_mux1_o<=LOW;
+															exe_mux2_o<=LOW;
+															reg_src_addr1<="0"&instr_i( 10 downto 8);		--Rx
+															reg_src_addr2<="0"&instr_i( 7 downto 5);		--Ry
+															extend_ctrl<=EXTEND_NOP;
+															reg_dest_o<="0"&instr_i( 10 downto 8);	--Rx
 															writeback_mux_o<=MEM_MUX_ALU_RESULT;
 															mem_wr_o<=LOW;
 															mem_rd_o<=LOW;
@@ -624,17 +655,6 @@ begin
 																	reg_src_addr2<="0"&instr_i(10 downto 8); --Rx
 																	extend_ctrl<=EXTEND_NOP;
 																	reg_dest_o<=RegAddrIH;		--IH
-																	writeback_mux_o<=MEM_MUX_ALU_RESULT;
-																	mem_wr_o<=LOW;
-																	mem_rd_o<=LOW;
-																	branch_type_o<=BRJ_NOP;
-										when "01000000"	=>	exe_aluop_o<=OP_ADD;		---MFPC
-																	exe_mux1_o<=HIGH;
-																	exe_mux2_o<=HIGH;
-																	reg_src_addr1<=RegAddrNOP;
-																	reg_src_addr2<=RegAddrNOP;
-																	extend_ctrl<=EXTEND_PC;
-																	reg_dest_o<="0"&instr_i(10 downto 8);		--Rx
 																	writeback_mux_o<=MEM_MUX_ALU_RESULT;
 																	mem_wr_o<=LOW;
 																	mem_rd_o<=LOW;

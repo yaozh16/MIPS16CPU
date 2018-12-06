@@ -48,10 +48,8 @@ entity FLASH is
 			  
 			  
 			  ---RAM
-			  RAMAddr_i:in std_logic_vector(22 downto 0);
-			  ---VGA
-			  VGAAddr_i:in std_logic_vector(22 downto 0);	---VGAData addr in ram2
-           FlashData_o:out std_logic_vector(15 downto 0);
+			  FlashRAMAddr_i:in std_logic_vector(22 downto 0);
+        FlashData_o:out std_logic_vector(15 downto 0);
 			  
 			  
 			  flash_byte : out std_logic;
@@ -88,14 +86,7 @@ begin
 	flash_rp <= '1';
 	flash_oe<=not rst;
 	flash_we<=rst;
-	process(FlashLoad_Complete,VGAAddr_i,RAMAddr_i)
-	begin
-		if(FlashLoad_Complete='0')then
-			flash_addr<=RAMAddr_i;
-		else
-			flash_addr<=VGAAddr_i;
-		end if;
-	end process;
+	flash_addr<=FlashRAMAddr_i;
 	
 	FlashData_o<=flash_data;
 	FlashDataControl:process(rst)

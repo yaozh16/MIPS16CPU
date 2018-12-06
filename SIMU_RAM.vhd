@@ -1,34 +1,8 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    21:08:14 11/29/2018 
--- Design Name: 
--- Module Name:    SIMU_RAM - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use work.DEFINE.ALL;
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity SIMU_RAM is
 	port(
@@ -49,14 +23,14 @@ begin
 		variable i:integer;
 	begin
 		if(rst=LOW)then
-			RAM(0)<="01101"&"000"&"00000001";	---LI R0 1			R0=1	
-			RAM(1)<="01101"&"011"&"00000011";	---LI R3 3			R3=3	
-			RAM(2)<="11011"&"000"&"011"&"00101";	---SW R3,R0,5			MEM[R0+5]=R3=3
-			RAM(3)<="01101"&"001"&"00000001";	---LI R1 1			R1=1
-			RAM(4)<="11100"&"000"&"001"&"010"&"01";	---ADDU R2,R0,R1	R2=R0+R1
-			RAM(5)<="11100"&"001"&"010"&"000"&"01";	---ADDU R0,R1,R2	R0=3
-			RAM(6)<="11100"&"010"&"010"&"011"&"01";	---ADDU R3,R2,R2	R3=4
-			RAM(7)<="11011"&"001"&"011"&"00000";	---SW R3,R1,0			MEM[1]=R3=4
+			RAM(0)<="01101"&"110"&"10111111";			---LI R6 0x00BF
+			RAM(1)<="00110"&"110"&"110"&"000"&"00";	---SLL R6 R6 0x0000
+ 			RAM(2)<="01001"&"110"&"00000001";			---ADDIU R6 0x0001
+			RAM(3)<="10011"&"110"&"000"&"00000";		---LW R6 R0 0x0000
+			RAM(4)<="01101"&"110"&"00000010";			---LI R6 0x0002
+			RAM(5)<="11101"&"000"&"110"&"01100";		---AND R0 R6
+			RAM(6)<="00100"&"000"&"11111001";			---BEQZ R0 F9
+			RAM(7)<="00010"&"11111111000";			---BEQZ R0 FA
 			for i in 8 to 31 loop
 				RAM(i)<=NopInst;
 			end loop;

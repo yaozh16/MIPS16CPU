@@ -34,7 +34,7 @@ use WORK.DEFINE.ALL;
 
 entity EXE is
 	port(
-	
+		stall:in std_logic;		
 		exe_aluop_i:in std_logic_vector(3 downto 0);---ALU operation
 		exe_mux1_i:in std_logic;
 		exe_mux2_i:in std_logic;
@@ -80,9 +80,13 @@ begin
 	mem_wdata_o<=reg_src2_data_i;
 	
 	
-	process(branch_type_i,extended_i,reg_src1_data_i)
+	process(branch_type_i,extended_i,reg_src1_data_i,stall)
 	begin
-		case branch_type_i is
+		if(stall='1')then
+			branch_addr_o<=ZeroWord;
+			branch_flag_o<=LOW;
+		else
+			case branch_type_i is
 			when BRJ_BEQZ=>if(reg_src1_data_i=ZeroWord)then
 									branch_addr_o<=extended_i;
 									branch_flag_o<=HIGH;
@@ -100,12 +104,13 @@ begin
 			when BRJ_JR=>	branch_addr_o<=reg_src1_data_i;
 								branch_flag_o<=HIGH;
 			when BRJ_B=>	branch_addr_o<=extended_i;
-								branch_flag_o<=LOW;
+								branch_flag_o<=HIGH;
 			when BRJ_NOP=>	branch_addr_o<=ZeroWord;
 								branch_flag_o<=LOW;
 			when others=>	branch_addr_o<=ZeroWord;
 								branch_flag_o<=LOW;
-		end case;
+			end case;
+		end if;
 	end process;
 	
 	process(exe_mux1_i,reg_src1_data_i)

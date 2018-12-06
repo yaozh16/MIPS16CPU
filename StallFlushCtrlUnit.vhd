@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.DEFINE.ALL;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -30,7 +31,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity StallFlushCtrlUnit is
 	port(
-		
 		branch_flag_i:in std_logic;	---from EXE
 		
 		se_rw_stall_i:in std_logic;	---from MEM
@@ -40,11 +40,11 @@ entity StallFlushCtrlUnit is
 		--			 ^			  ^
 		--s  s	 s			  f	  
 		mem_rd_i_EXE_MEM:in std_logic;									-- from exe_mem_regs
-		mem_wr_i_RF_EXE:in std_logic;									-- from exe_mem_regs
-		mem_rd_i_RF_EXE:in std_logic;									-- from exe_mem_regs
+		mem_wr_i_RF_EXE:in std_logic;										-- from exe_mem_regs
+		mem_rd_i_RF_EXE:in std_logic;										-- from exe_mem_regs
 		reg_exemem_dest_addr_i:in std_logic_vector(3 downto 0);	-- from exe_mem_regs
-		reg_src1_addr_i:in std_logic_vector(3 downto 0);		---from rf_exe regs
-		reg_src2_addr_i:in std_logic_vector(3 downto 0);		-- from rf_exe regs
+		reg_src1_addr_i:in std_logic_vector(3 downto 0);			---from rf_exe regs
+		reg_src2_addr_i:in std_logic_vector(3 downto 0);			-- from rf_exe regs
 		
 		
 		----PC IFID  |	RF	|	EXE	|	MEM	|	WB
@@ -55,32 +55,36 @@ entity StallFlushCtrlUnit is
 end StallFlushCtrlUnit;
 
 architecture Behavioral of StallFlushCtrlUnit is
-
 begin
-	process(	branch_flag_i,
+	process(
+				branch_flag_i,
 				mem_rd_i_EXE_MEM,
 				reg_exemem_dest_addr_i,
 				reg_src1_addr_i,
-				reg_src2_addr_i)
+				reg_src2_addr_i,
+				mem_wr_i_RF_EXE,
+				mem_rd_i_RF_EXE,
+				se_rw_stall_i
+				)
 	begin
-		if(branch_flag_i='1')then
-			RegStalls_o<="00000";
-			RegFlushs_o<= "1100";
+		if(se_rw_stall_i='1')then
+			----Waiting until serial port finished read or write
+			RegStalls_o<="11111";
+			RegFlushs_o<= "0000";
 		elsif((mem_rd_i_EXE_MEM='1')and 
-					(	(reg_exemem_dest_addr_i=reg_src1_addr_i) 
-					or (reg_exemem_dest_addr_i=reg_src2_addr_i)
+					(	((reg_exemem_dest_addr_i=reg_src1_addr_i) and not( reg_src1_addr_i=RegAddrNOP)) 
+					or ((reg_exemem_dest_addr_i=reg_src2_addr_i) and not( reg_src2_addr_i=RegAddrNOP))
 					)
 				)then			
-			--- LW conflict
-			RegStalls_o<="11100";
-			RegFlushs_o<= "0010";
-		elsif(se_rw_stall_i='1' and (mem_wr_i_RF_EXE or mem_rd_i_RF_EXE)='1')then
-			----Waiting until serial port finished read or write
-			RegStalls_o<="11110";
-			RegFlushs_o<="0000";
+					--- LW conflict
+					RegStalls_o<="11100";---PC  IFRF   RFEXE 
+					RegFlushs_o<= "0010";
+		elsif(branch_flag_i='1')then
+					RegStalls_o<="00000";
+					RegFlushs_o<= "1100";	----delay slot
 		else
-			RegStalls_o<="00000";
-			RegFlushs_o<= "0000";
+					RegStalls_o<="00000";
+					RegFlushs_o<= "0000";
 		end if;
 	end process;
 

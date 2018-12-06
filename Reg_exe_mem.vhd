@@ -53,24 +53,32 @@ entity Reg_exe_mem is
 end Reg_exe_mem;
 
 architecture Behavioral of Reg_exe_mem is
-	
 begin
 	process(clk,rst,flush)
 	begin
-		if((rst=LOW) or (flush=HIGH))then
+		if(rst=LOW)then
 			ALU_result_o<=ZeroWord;
 			reg_dest_o<=RegAddrNOP;
 			mem_rd_o<=LOW;
 			mem_wr_o<=LOW;
 			writeback_mux_o<=LOW;
 			mem_wdata_o<=ZeroWord;
-		elsif(clk'event and clk=HIGH and stall=LOW)then
-			ALU_result_o<=ALU_result_i;
-			reg_dest_o<=reg_dest_i;
-			mem_rd_o<=mem_rd_i;
-			mem_wr_o<=mem_wr_i;
-			writeback_mux_o<=writeback_mux_i;
-			mem_wdata_o<=mem_wdata_i;
+		elsif(clk'event and clk=HIGH)then
+			if(flush='1')then
+				ALU_result_o<=ZeroWord;
+				reg_dest_o<=RegAddrNOP;
+				mem_rd_o<=LOW;
+				mem_wr_o<=LOW;
+				writeback_mux_o<=LOW;
+				mem_wdata_o<=ZeroWord;
+			elsif(stall=LOW)then
+				ALU_result_o<=ALU_result_i;
+				reg_dest_o<=reg_dest_i;
+				mem_rd_o<=mem_rd_i;
+				mem_wr_o<=mem_wr_i;
+				writeback_mux_o<=writeback_mux_i;
+				mem_wdata_o<=mem_wdata_i;
+			end if;
 		end if;
 	end process;
 end Behavioral;

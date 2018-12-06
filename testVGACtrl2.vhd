@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   21:42:34 12/06/2018
+-- Create Date:   02:59:03 12/07/2018
 -- Design Name:   
--- Module Name:   /media/yaozh16/00017DA30004166D/Academic/Grade3.1/CC/PRJ/MIPS16CPU/testVGACtrl.vhd
+-- Module Name:   /media/yaozh16/00017DA30004166D/Academic/Grade3.1/CC/PRJ/MIPS16CPU/testVGACtrl2.vhd
 -- Project Name:  MIPS16CPU
 -- Target Device:  
 -- Tool versions:  
@@ -32,10 +32,10 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY testVGACtrl IS
-END testVGACtrl;
+ENTITY testVGACtrl2 IS
+END testVGACtrl2;
  
-ARCHITECTURE behavior OF testVGACtrl IS 
+ARCHITECTURE behavior OF testVGACtrl2 IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
@@ -106,10 +106,9 @@ BEGIN
    begin		
       -- hold reset state for 100 ns.
 		rst<='0';
-		VGAData_i<="0001110011100011";
-		ScreenOffset_i<="00"&x"8000";
       wait for 100 ns;	
 		rst<='1';
+
       wait for clk_period*10;
 
       -- insert stimulus here 

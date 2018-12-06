@@ -66,6 +66,8 @@ architecture Behavioral of CPU is
 				end component PCIF;
 				component RF
 				port (
+					
+				  rst						  : in std_logic;
 				  clk                  : in  std_logic;
 				  pc_i 					  : in  std_logic_vector(15 downto 0);
 				  instr_i              : in  std_logic_vector(15 downto 0);
@@ -374,6 +376,7 @@ Reg_id_rf_component:Reg_id_rf port map(
 );
 ---RF
 RF_component:RF port map(
+	rst=>rst,
 	clk=>clk,
 	pc_i=>pc_i_RF,
 	instr_i=>instr_i_RF,

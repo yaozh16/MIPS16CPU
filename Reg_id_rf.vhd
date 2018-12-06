@@ -48,12 +48,17 @@ architecture Behavioral of Reg_id_rf is
 begin
 	process(clk,rst,flush)
 	begin
-		if((rst=LOW)or (flush=HIGH))then
+		if(rst=LOW)then
 			pc_o<=ZeroWord;
 			instruction_o<=NopInst;
-		elsif(clk'event and clk=HIGH and stall=LOW)then
-			pc_o<=pc_i;
-			instruction_o<=instruction_i;
+		elsif(clk'event and clk=HIGH)then
+			if(flush=HIGH)then
+				pc_o<=ZeroWord;
+				instruction_o<=NopInst;
+			elsif(stall=LOW)then
+				pc_o<=pc_i;
+				instruction_o<=instruction_i;
+			end if;
 		end if;
 	end process;
 
